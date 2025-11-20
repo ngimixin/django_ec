@@ -1,0 +1,58 @@
+[products]
+  *id              {label: "bigint, not null"}
+  name             {label: "varchar(255), not null"}
+  description      {label: "text, null"}
+  price            {label: "integer, not null"}
+  stock            {label: "integer, not null"}
+  image            {label: "varchar, null"}              # 画像パス（MEDIA_ROOT配下を想定）
+  is_active        {label: "boolean, not null, default true"}
+  created_at       {label: "datetime, not null"}
+  updated_at       {label: "datetime, not null"}
+
+[carts]
+  *id              {label: "bigint, not null"}
+  session_key      {label: "varchar(64), not null"}      # Djangoセッションキー想定
+  created_at       {label: "datetime, not null"}
+  updated_at       {label: "datetime, not null"}
+
+[cart_items]
+  *id              {label: "bigint, not null"}
+  cart_id          {label: "bigint, not null, FK(carts)"}
+  product_id       {label: "bigint, not null, FK(products)"}
+  quantity         {label: "integer, not null"}
+  created_at       {label: "datetime, not null"}
+  updated_at       {label: "datetime, not null"}
+  # NOTE: 1カート内で同じproductをまとめたいなら UNIQUE(cart_id, product_id) を検討
+
+[orders]
+  *id              {label: "bigint, not null"}
+  name             {label: "varchar(100), not null"}     # 購入者氏名
+  email            {label: "varchar, not null"}          # 購入者メール
+  address          {label: "text, not null"}     # 配送先住所
+  total_amount     {label: "integer, not null"}          # 合計金額（円）
+  status           {label: "varchar(20), not null"}      # 'pending' | 'paid' | 'shipped' など
+  created_at       {label: "datetime, not null"}
+  updated_at       {label: "datetime, not null"}
+
+[order_items]
+  *id              {label: "bigint, not null"}
+  order_id         {label: "bigint, not null, FK(orders)"}
+  product_id       {label: "bigint, not null, FK(products)"}
+  price            {label: "integer, not null"}          # 注文時点の単価
+  quantity         {label: "integer, not null"}
+  created_at       {label: "datetime, not null"}
+  updated_at       {label: "datetime, not null"}
+
+# 1) カート起点
+carts     1--* cart_items       # 1カートに複数カートアイテム
+products  1--* cart_items       # 1商品が複数カートアイテムで参照されうる（いろんな人のカート）
+
+# 2) 注文起点
+orders    1--* order_items      # 1注文に複数注文明細
+products  1--* order_items      # 1商品が複数注文明細で参照されうる（いろんな注文）
+
+# Cardinality    Syntax
+# 0 or 1         ?
+# exactly 1      1
+# 0 or more      *
+# 1 or more      +
