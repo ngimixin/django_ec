@@ -4,7 +4,7 @@ from .models import Product
 
 def product_list(request):
     """商品一覧ページを表示するビュー"""
-    products = Product.objects.filter(is_active=True).order_by("id")
+    products = Product.objects.filter(is_active=True).order_by("-created_at")
 
     return render(request, "products/product_list.html", {"products": products})
 
