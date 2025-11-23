@@ -1,0 +1,54 @@
+/* 商品詳細ページのメイン画像を6:7比率で表示する */
+.product-image-wrapper {
+  width: 100%;
+  aspect-ratio: 6 / 7;
+  /* ← 6:7の比率に固定 */
+  overflow: hidden;
+  /* はみ出た部分を隠す */
+}
+
+.product-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 枠いっぱいに表示して中央トリム */
+  object-position: center;
+  /* 中央を基準に切り抜く */
+}
+
+/* 商品一覧のサムネ画像を 1:1にトリミング表示 */
+.product-thumb-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* ← テンプレの比率に固定 */
+  overflow: hidden;
+}
+
+.product-thumb-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 枠いっぱいに表示してクロップ */
+  object-position: center;
+  /* 中央表示 */
+}
+
+/* ナビゲーションバーの背景色を濃くする */
+.navbar.navbar-light {
+  background-color: #465d70c9 !important;
+}
+
+/* ナビゲーションバーの文字色を白にする */
+.navbar.navbar-light .navbar-brand {
+  color: #ffffff !important;
+}
+
+.navbar.navbar-light .btn-outline-dark {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.navbar.navbar-light .btn-outline-dark:hover {
+  background-color: #ffffff !important;
+  color: #465d70c9 !important;
+}

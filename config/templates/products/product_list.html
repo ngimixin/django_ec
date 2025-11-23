@@ -5,11 +5,16 @@
 {% endblock title %}
 {% block content %}
   <!-- Header-->
-  <header class="bg-dark py-5">
-    <div class="container px-4 px-lg-5 my-5">
+  <header class="py-5 position-relative"
+          style="background-image: url('{% static 'header-bg.jpg' %}');
+                 background-size: cover;
+                 background-position: center;
+                 background-repeat: no-repeat;
+                 background-color: #343a40">
+    <div class="container px-4 px-lg-5 my-5 position-relative">
       <div class="text-center text-white">
-        <h1 class="display-4 fw-bolder">Shop in style</h1>
-        <p class="lead fw-normal text-white-50 mb-0">With this shop hompeage template</p>
+        <h1 class="display-4 fw-bolder">VELO STATION</h1>
+        <p class="lead fw-normal text-white-50 mb-0">Gear for a better ride.</p>
       </div>
     </div>
   </header>
@@ -22,17 +27,19 @@
             <div class="col mb-5">
               <div class="card h-100">
                 <!-- Product image-->
-                <a href="{% url 'products:product_detail' product.pk %}">
-                  {% if product.image %}
-                    <img class="card-img-top"
-                         src="{{ product.image.url }}"
-                         alt="{{ product.name }}" />
-                  {% else %}
-                    <img class="card-img-top"
-                         src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-                         alt="{{ product.name }}" />
-                  {% endif %}
-                </a>
+                <div class="product-thumb-wrapper">
+                  <a href="{% url 'products:product_detail' product.pk %}">
+                    {% if product.image %}
+                      <img class="card-img-top"
+                           src="{{ product.image.url }}"
+                           alt="{{ product.name }}" />
+                    {% else %}
+                      <img class="card-img-top"
+                           src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
+                           alt="{{ product.name }}" />
+                    {% endif %}
+                  </a>
+                </div>
                 <!-- Product details-->
                 <div class="card-body p-4">
                   <div class="text-center">

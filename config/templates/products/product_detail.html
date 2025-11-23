@@ -9,17 +9,20 @@
     <div class="container px-4 px-lg-5 my-5">
       <div class="row gx-4 gx-lg-5 align-items-center">
         <div class="col-md-6">
-          {% if product.image %}
-            <img class="card-img-top mb-5 mb-md-0"
-                 src="{{ product.image.url }}"
-                 alt="{{ product.name }}">
-          {% else %}
-            <img class="card-img-top mb-5 mb-md-0"
-                 src="https://dummyimage.com/600x700/dee2e6/6c757d.jpg"
-                 alt="{{ product.name }}" />
-          {% endif %}
+          <div class="product-image-wrapper mb-5 mb-md-0">
+            {% if product.image %}
+              <img class="card-img-top"
+                   src="{{ product.image.url }}"
+                   alt="{{ product.name }}">
+            {% else %}
+              <img class="card-img-top"
+                   src="https://dummyimage.com/600x700/dee2e6/6c757d.jpg"
+                   alt="{{ product.name }}" />
+            {% endif %}
+          </div>
         </div>
         <div class="col-md-6">
+          <div class="small mb-1">{{ product.sku }}</div>
           <h1 class="display-5 fw-bolder">{{ product.name }}</h1>
           <div class="fs-5 mb-5">
             <span>￥{{ product.price }}</span>
@@ -51,15 +54,17 @@
             <div class="col mb-5">
               <div class="card h-100">
                 <!-- Product image-->
-                <a href="{% url 'products:product_detail' p.pk %}">
-                  {% if p.image %}
-                    <img class="card-img-top" src="{{ p.image.url }}" alt="{{ p.name }}" />
-                  {% else %}
-                    <img class="card-img-top"
-                         src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-                         alt="{{ p.name }}" />
-                  {% endif %}
-                </a>
+                <div class="product-thumb-wrapper">
+                  <a href="{% url 'products:product_detail' p.pk %}">
+                    {% if p.image %}
+                      <img class="card-img-top" src="{{ p.image.url }}" alt="{{ p.name }}" />
+                    {% else %}
+                      <img class="card-img-top"
+                           src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
+                           alt="{{ p.name }}" />
+                    {% endif %}
+                  </a>
+                </div>
                 <!-- Product details-->
                 <div class="card-body p-4">
                   <div class="text-center">
