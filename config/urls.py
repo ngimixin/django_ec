@@ -24,6 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("hello/", TemplateView.as_view(template_name="hello.html")),
+    # トップページを商品一覧に（products/urls.py に委譲）
     path("", include("products.urls")),
 ]
 
