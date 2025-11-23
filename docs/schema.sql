@@ -7,6 +7,7 @@
 DROP TABLE IF EXISTS products CASCADE;
 CREATE TABLE products (
   id           BIGSERIAL PRIMARY KEY,
+  sku          VARCHAR(100) NOT NULL,
   name         VARCHAR(255) NOT NULL,
   description  TEXT NULL,
   price        INTEGER NOT NULL,                    -- 価格（円）
@@ -14,7 +15,8 @@ CREATE TABLE products (
   image        VARCHAR NULL,                        -- Django ImageField が保存する画像ファイルのパス
   is_active    BOOLEAN NOT NULL DEFAULT TRUE,       -- 掲載フラグ
   created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
+  updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE (sku)
 );
 
 -- carts（セッションごとのカート）

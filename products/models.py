@@ -1,7 +1,9 @@
+from tabnanny import verbose
 from django.db import models
 
 
 class Product(models.Model):
+    sku = models.CharField(max_length=100, verbose_name="品番", unique=True)
     name = models.CharField(max_length=255, verbose_name="商品名")
     description = models.TextField(null=True, blank=True, verbose_name="商品説明")
     price = models.PositiveIntegerField(verbose_name="価格")
