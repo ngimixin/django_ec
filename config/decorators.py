@@ -33,8 +33,11 @@ def basic_auth_required(view_func):
 
         if not auth_header.startswith("Basic "):
             # Basic認証が提供されていない場合、401を返す
-            response = HttpResponse("認証が必要です", status=401)
-            response["WWW-Authenticate"] = 'Basic realm="商品管理"'
+            response = HttpResponse("認証が必要です", status=401, content_type="text/plain; charset=utf-8")
+            response["WWW-Authenticate"] = 'Basic realm="ProductManagement"'
+            response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response["Pragma"] = "no-cache"
+            response["Expires"] = "0"
             return response
 
         # Basic認証の認証情報をデコード
@@ -42,16 +45,22 @@ def basic_auth_required(view_func):
             auth_decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
             username, password = auth_decoded.split(":", 1)
         except (ValueError, UnicodeDecodeError):
-            response = HttpResponse("認証情報が無効です", status=401)
-            response["WWW-Authenticate"] = 'Basic realm="商品管理"'
+            response = HttpResponse("認証情報が無効です", status=401, content_type="text/plain; charset=utf-8")
+            response["WWW-Authenticate"] = 'Basic realm="ProductManagement"'
+            response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response["Pragma"] = "no-cache"
+            response["Expires"] = "0"
             return response
 
         # 認証情報を検証
         if username == "admin" and password == "pw":
             return view_func(request, *args, **kwargs)
 
-        response = HttpResponse("認証に失敗しました", status=401)
-        response["WWW-Authenticate"] = 'Basic realm="商品管理"'
+        response = HttpResponse("認証に失敗しました", status=401, content_type="text/plain; charset=utf-8")
+        response["WWW-Authenticate"] = 'Basic realm="ProductManagement"'
+        response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response["Pragma"] = "no-cache"
+        response["Expires"] = "0"
         return response
 
     return _wrapped_view
