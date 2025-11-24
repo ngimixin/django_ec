@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+  {{ SITE_TITLE }} | 商品管理：削除確認（{{ product.name }}）
+{% endblock title %}
+{% block content %}
+  <div class="container py-4">
+    <h1 class="mb-4">商品管理：削除確認（{{ product.name }}）</h1>
+    <div class="alert alert-warning" role="alert">
+      <strong style="color: red;">注意：</strong> <span style="color: red;">この商品を削除すると、元に戻すことはできません。</span>
+    </div>
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h5 card-title mb-3">{{ product.name }}</h2>
+        <p class="mb-1">
+          <strong>SKU:</strong> {{ product.sku }}
+        </p>
+        <p class="mb-1">
+          <strong>価格:</strong> {{ product.price }} 円
+        </p>
+        <p class="mb-1">
+          <strong>在庫:</strong> {{ product.stock }}
+        </p>
+        <p class="mb-1">
+          <strong>公開状態:</strong>
+          {% if product.is_active %}
+            公開中
+          {% else %}
+            非公開
+          {% endif %}
+        </p>
+      </div>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">この商品を削除する</button>
+      <a href="{% url 'products:manage_product_list' %}"
+         class="btn btn-secondary ms-2">キャンセル（一覧に戻る）</a>
+    </form>
+  </div>
+{% endblock content %}
