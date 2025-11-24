@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static tz %}
 {% block title %}
   {{ SITE_TITLE }} | 商品管理：一覧
 {% endblock title %}
@@ -44,8 +44,8 @@
                     <span class="badge bg-secondary">非公開</span>
                   {% endif %}
                 </td>
-                <td>{{ product.created_at|date:"Y-m-d H:i" }}</td>
-                <td>{{ product.updated_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ product.created_at|localtime|date:"Y-m-d H:i" }}</td>
+                <td>{{ product.updated_at|localtime|date:"Y-m-d H:i" }}</td>
                 <td>
                   <a href="{% url 'products:manage_product_edit' product.pk %}"
                      class="btn btn-sm btn-outline-secondary me-1">編集</a>
