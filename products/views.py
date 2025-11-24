@@ -1,7 +1,8 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product
 from config.decorators import basic_auth_required as auth
+from .forms import ProductForm
 
 
 def product_list(request: HttpRequest) -> HttpResponse:
@@ -33,6 +34,7 @@ def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
 
     return render(request, "products/product_detail.html", context)
 
+
 @auth
 def manage_product_list(request: HttpRequest) -> HttpResponse:
     """
@@ -47,13 +49,34 @@ def manage_product_list(request: HttpRequest) -> HttpResponse:
     }
     return render(request, "products/manage_product_list.html", context)
 
+
 @auth
 def manage_product_create(request: HttpRequest) -> HttpResponse:
-    return HttpResponse("商品管理：作成（TODO）")
+    """
+    商品管理画面：商品を新規作成するビュー。
+
+    - GET: 空のフォームを表示
+    - POST: 入力値をバリデーションして Product を作成し、一覧へリダイレクト
+    """
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("products:manage_product_list")
+    else:
+        # 初回アクセス時（GET）は空のフォームを表示
+        form = ProductForm()
+
+    context = {
+        "form": form,
+    }
+    return render(request, "products/manage_product_create.html", context)
+
 
 @auth
 def manage_product_edit(request: HttpRequest, pk: int) -> HttpResponse:
     return HttpResponse("商品管理：編集（TODO） - pk={pk}")
+
 
 @auth
 def manage_product_delete(request: HttpRequest, pk: int) -> HttpResponse:
