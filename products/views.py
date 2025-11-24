@@ -43,7 +43,7 @@ def manage_product_list(request: HttpRequest) -> HttpResponse:
     - Product を新しい順に全部取得する
     - manage_product_list.html に渡してテーブルで一覧表示する
     """
-    products = Product.objects.all().order_by("-id")
+    products = Product.objects.all().order_by("-created_at")
     context = {
         "products": products,
     }
