@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+  {{ SITE_TITLE }} | 商品管理：一覧
+{% endblock title %}
+{% block content %}
+  <div class="container py-4">
+    <h1 class="mb-4">商品管理：一覧</h1>
+    <!-- 新規作成ボタン -->
+    <div class="d-flex justify-content-end mb-3">
+      <a href="{% url 'products:manage_product_create' %}"
+         class="btn btn-primary">新規商品を作成</a>
+    </div>
+    <!-- 商品一覧テーブル -->
+    {% if products %}
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>SKU</th>
+              <th>商品名</th>
+              <th>価格</th>
+              <th>在庫</th>
+              <th>公開</th>
+              <th>作成日</th>
+              <th>更新日</th>
+              <th></th>
+              {# 操作ボタン用の空ヘッダ #}
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+              <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }}円</td>
+                <td>{{ product.stock }}</td>
+                <td>
+                  {% if product.is_active %}
+                    <span class="badge bg-success">公開</span>
+                  {% else %}
+                    <span class="badge bg-secondary">非公開</span>
+                  {% endif %}
+                </td>
+                <td>{{ product.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ product.updated_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                  <a href="{% url 'products:manage_product_edit' product.pk %}"
+                     class="btn btn-sm btn-outline-secondary me-1">編集</a>
+                  <a href="{% url 'products:manage_product_delete' product.pk %}"
+                     class="btn btn-sm btn-outline-danger">削除</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>商品がまだ登録されていません。</p>
+    {% endif %}
+  </div>
+{% endblock content %}

@@ -1,6 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from .models import Product
+from config.decorators import basic_auth_required as auth
 
 
 def product_list(request: HttpRequest) -> HttpResponse:
@@ -31,3 +32,29 @@ def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
     }
 
     return render(request, "products/product_detail.html", context)
+
+@auth
+def manage_product_list(request: HttpRequest) -> HttpResponse:
+    """
+    商品管理画面（一覧）を表示するビュー。
+
+    - Product を新しい順に全部取得する
+    - manage_product_list.html に渡してテーブルで一覧表示する
+    """
+    products = Product.objects.all().order_by("-id")
+    context = {
+        "products": products,
+    }
+    return render(request, "products/manage_product_list.html", context)
+
+@auth
+def manage_product_create(request: HttpRequest) -> HttpResponse:
+    return HttpResponse("商品管理：作成（TODO）")
+
+@auth
+def manage_product_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    return HttpResponse("商品管理：編集（TODO） - pk={pk}")
+
+@auth
+def manage_product_delete(request: HttpRequest, pk: int) -> HttpResponse:
+    return HttpResponse("商品管理：削除（TODO） - pk={pk}")
