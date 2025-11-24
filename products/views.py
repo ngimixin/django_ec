@@ -110,4 +110,20 @@ def manage_product_edit(request: HttpRequest, pk: int) -> HttpResponse:
 
 @auth
 def manage_product_delete(request: HttpRequest, pk: int) -> HttpResponse:
-    return HttpResponse("商品管理：削除（TODO） - pk={pk}")
+    """
+    商品管理画面：商品を削除するビュー。
+
+    - GET: 対象商品の情報を表示し、「本当に削除してよいか」確認画面を出す
+    - POST: 実際に Product を削除して一覧へリダイレクト
+    """
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == "POST":
+        product.delete()
+        return redirect("products:manage_product_list")
+
+    # 初回アクセス時（GET）は確認画面用テンプレートを表示
+    context = {
+        "product": product,
+    }
+    return render(request, "products/manage_product_delete.html", context)
