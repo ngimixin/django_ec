@@ -75,7 +75,37 @@ def manage_product_create(request: HttpRequest) -> HttpResponse:
 
 @auth
 def manage_product_edit(request: HttpRequest, pk: int) -> HttpResponse:
-    return HttpResponse("商品管理：編集（TODO） - pk={pk}")
+    """
+    商品管理画面：商品を編集するビュー。
+
+    Args:
+        request: HTTPリクエストオブジェクト。
+        pk: 編集対象となる Product の主キー。
+
+    Returns:
+        編集フォームを表示するHTMLレスポンス、または更新後の商品一覧ページへのリダイレクト。
+
+    Notes:
+        - GET の場合は指定した Product の情報を初期値として持つフォームを表示する。
+        - POST の場合はフォーム入力内容をバリデーションし、問題なければ既存の Product インスタンスを更新する。
+        - 更新後は管理用の商品一覧ページへリダイレクトする。
+    """
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect("products:manage_product_list")
+    else:
+        form = ProductForm(instance=product)
+
+    context = {
+        "form": form,
+        "product": product,
+    }
+
+    return render(request, "products/manage_product_edit.html", context)
 
 
 @auth

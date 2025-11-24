@@ -4,6 +4,7 @@ from .models import Product
 
 class ProductForm(forms.ModelForm):
     """Productモデル用の入力フォーム"""
+
     class Meta:
         model = Product
         fields = [
