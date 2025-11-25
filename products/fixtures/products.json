@@ -1,0 +1,137 @@
+[
+{
+  "model": "products.product",
+  "pk": 1,
+  "fields": {
+    "sku": "SHIM-HG53-118",
+    "name": "SHIMANO CN-HG53（9速チェーン）118リンク",
+    "description": "シマノ9速用チェーン。滑らかな変速性能で、コストパフォーマンスの高いスタンダードモデル。",
+    "price": 3600,
+    "stock": 30,
+    "image": "products/chain.jpg",
+    "is_active": true,
+    "created_at": "2025-11-23T15:15:05.647Z",
+    "updated_at": "2025-11-23T15:51:37.218Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 2,
+  "fields": {
+    "sku": "CATE-VOLT800",
+    "name": "CAT EYE VOLT800（HL-EL471RC）",
+    "description": "最大800ルーメンのハイパワーライト。USB充電式で通勤ライド〜夜間ライドまで安心の高性能モデル。",
+    "price": 15000,
+    "stock": 15,
+    "image": "products/volt800.jpg",
+    "is_active": true,
+    "created_at": "2025-11-23T15:41:16.505Z",
+    "updated_at": "2025-11-23T15:41:16.505Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 3,
+  "fields": {
+    "sku": "TOPE-COMBO-TORQ",
+    "name": "TOPEAK コンボトルク レンチ & ビット セット",
+    "description": "整備初心者でも扱いやすいTOPEAKのトルクレンチセット。カーボンパーツやボルト締結の適正トルク管理に最適。",
+    "price": 2500,
+    "stock": 10,
+    "image": "products/combo-torq.jpg",
+    "is_active": true,
+    "created_at": "2025-11-23T15:54:37.578Z",
+    "updated_at": "2025-11-23T16:41:26.222Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 4,
+  "fields": {
+    "sku": "WAKO-CHL-A310",
+    "name": "ワコーズ CHL チェーンルブ A310 180ml",
+    "description": "ワコーズの定番チェーンルブ。耐水性と耐久性に優れ、ロード・MTB問わず万能。汚れにくく静粛性も高い。",
+    "price": 2000,
+    "stock": 20,
+    "image": "products/wako-chl.jpg",
+    "is_active": true,
+    "created_at": "2025-11-23T16:00:20.379Z",
+    "updated_at": "2025-11-23T16:00:20.379Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 5,
+  "fields": {
+    "sku": "CONT-RACE28W-SET2",
+    "name": "Continental Race28 Wide（700×25–32c）チューブ ×2本セット",
+    "description": "ワイド規格（25〜32c）対応の仏式42mmチューブ。予備に持っておくと安心の2本セット。",
+    "price": 1900,
+    "stock": 20,
+    "image": "products/cont-race.jpg",
+    "is_active": false,
+    "created_at": "2025-11-23T16:04:37.865Z",
+    "updated_at": "2025-11-23T16:19:20.367Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 6,
+  "fields": {
+    "sku": "CONT-US3-SET2",
+    "name": "Continental UltraSport3（700×28C）×2本セット",
+    "description": "コンチネンタルのトレーニングタイヤ「UltraSport3」。耐久性が高く、ロード初心者〜中級者に人気の2本セット。",
+    "price": 6000,
+    "stock": 10,
+    "image": "products/cont-us3.jpg",
+    "is_active": true,
+    "created_at": "2025-11-23T16:09:52.369Z",
+    "updated_at": "2025-11-23T16:10:49.131Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 7,
+  "fields": {
+    "sku": "MKS-ALLWAYS",
+    "name": "三ヶ島ペダル ALLWAYS（左右セット）",
+    "description": "三ヶ島製の高品質なフラットペダル。踏面が広く、シューズを選ばず漕ぎやすい万能タイプ。街乗り〜ツーリング向け。",
+    "price": 7500,
+    "stock": 15,
+    "image": "products/mks-allways.jpg",
+    "is_active": true,
+    "created_at": "2025-11-23T16:13:00.666Z",
+    "updated_at": "2025-11-23T16:14:11.182Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 8,
+  "fields": {
+    "sku": "SHIM-HG400-9S",
+    "name": "SHIMANO CS-HG400（9速）スプロケット",
+    "description": "街乗り・通勤用途に最適な9速スプロケット。幅広いギア比構成で扱いやすく、価格も控えめ。",
+    "price": 3000,
+    "stock": 20,
+    "image": "products/shim-hg400.jpg",
+    "is_active": true,
+    "created_at": "2025-11-23T16:15:53.775Z",
+    "updated_at": "2025-11-23T16:15:53.775Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 9,
+  "fields": {
+    "sku": "SHIM-ULTE-BR8000",
+    "name": "SHIMANO ULTEGRA BR-R8000（前後セット）",
+    "description": "SHIMANO ULTEGRAシリーズの高精度なブレーキセット。制動力・剛性・軽さのバランスが非常に良く、多くのロード愛好家に支持されるモデル。",
+    "price": 13000,
+    "stock": 10,
+    "image": "products/shim-ulte.jpg",
+    "is_active": true,
+    "created_at": "2025-11-23T16:18:01.065Z",
+    "updated_at": "2025-11-23T16:37:31.697Z"
+  }
+}
+]
