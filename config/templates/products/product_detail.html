@@ -28,18 +28,23 @@
             <span>￥{{ product.price }}</span>
           </div>
           <p class="lead">{{ product.description|linebreaks }}</p>
-          <div class="d-flex">
-            <input class="form-control text-center me-3"
-                   id="inputQuantity"
-                   type="number"
-                   value="1"
-                   min="1"
-                   style="max-width: 3rem" />
-            <button class="btn btn-outline-dark flex-shrink-0" type="button">
-              <i class="bi-cart-fill me-1"></i>
-              カートに入れる
-            </button>
-          </div>
+          <form method="post" action="{% url 'products:add_to_cart' product.id %}">
+            {% csrf_token %}
+            <div class="input-group" style="max-width: 300px;">
+              <select name="quantity"
+                      class="form-select"
+                      style="width: 100px;
+                             flex: 0 0 100px">
+                {% for qty in quantity_range %}
+                  <option value="{{ qty }}" {% if qty == 1 %}selected{% endif %}>{{ qty }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-outline-dark">
+                <i class="bi-cart-fill me-1"></i>
+                カートに入れる
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -81,7 +86,10 @@
                 <!-- Product actions-->
                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                   <div class="text-center">
-                    <a class="btn btn-outline-dark mt-auto" href="#">カートに入れる</a>
+                    <form method="post" action="{% url 'products:add_to_cart' p.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-dark">カートに入れる</button>
+                    </form>
                   </div>
                 </div>
               </div>
