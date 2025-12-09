@@ -7,6 +7,7 @@ from products.services.cart import get_or_create_cart
 from .models import Product, Cart, CartItem
 from config.decorators import basic_auth_required as auth
 from .forms import ProductForm
+from .utils import get_quantity_range
 
 
 def product_list(request: HttpRequest) -> HttpResponse:
@@ -33,10 +34,8 @@ def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
         .order_by("-created_at")[:4]
     )
 
-    # 在庫数に基づいて選択可能な最大数量を決定
-    max_quantity = product.stock if product.stock > 0 else 1
-    # 1から在庫数までのリストを生成
-    quantity_range = list(range(1, max_quantity + 1))
+    # 在庫数に基づいて選択可能な数量リストを生成
+    quantity_range = get_quantity_range(product)
 
     context = {
         "product": product,
@@ -140,6 +139,45 @@ def manage_product_delete(request: HttpRequest, pk: int) -> HttpResponse:
     }
     return render(request, "products/manage_product_delete.html", context)
 
+
+def cart_detail(request: HttpRequest) -> HttpResponse:
+    """
+    カートの中身を表示するビュー。
+    """
+    if request.session.session_key is None:
+        items = []
+        cart_total = 0
+        total_quantity = 0
+        item_quantity_ranges = {}
+    else:
+        session_key = request.session.session_key
+        cart = Cart.objects.filter(session_key=session_key).first()
+        if cart is None:
+            items = []
+            cart_total = 0
+            total_quantity = 0
+            item_quantity_ranges = {}
+        else:
+            items = CartItem.objects.select_related("product").filter(cart=cart)
+
+            cart_total = sum(item.product.price * item.quantity for item in items)
+            total_quantity = sum(item.quantity for item in items)
+
+            # 各商品の在庫数に基づいた数量選択肢を生成
+            item_quantity_ranges = {}
+            for item in items:
+                quantity_range = get_quantity_range(item.product)
+                item_quantity_ranges[item.product.id] = quantity_range
+
+    context = {
+        "items": items,
+        "cart_total": cart_total,
+        "total_quantity": total_quantity,
+        "item_quantity_ranges": item_quantity_ranges,
+    }
+    return render(request, "products/cart_detail.html", context)
+
+
 @require_POST
 def add_to_cart(request: HttpRequest, product_id: int) -> HttpResponse:
     """
@@ -164,9 +202,7 @@ def add_to_cart(request: HttpRequest, product_id: int) -> HttpResponse:
 
     # すでに同じ商品がカートに入っていたら数量だけ増やす
     item, created = CartItem.objects.get_or_create(
-        cart=cart,
-        product=product,
-        defaults={"quantity": quantity}
+        cart=cart, product=product, defaults={"quantity": quantity}
     )
 
     if not created:
@@ -176,32 +212,38 @@ def add_to_cart(request: HttpRequest, product_id: int) -> HttpResponse:
     return redirect("products:cart_detail")
 
 
-def cart_detail(request: HttpRequest) -> HttpResponse:
+@require_POST
+def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     """
-    カートの中身を表示するビュー。
+    カート内商品の数量を更新するビュー。
     """
-    if request.session.session_key is None:
-        items = []
-        cart_total = 0
-    else:
-        session_key = request.session.session_key
-        cart = Cart.objects.filter(session_key=session_key).first()
-        if cart is None:
-            items = []
-            cart_total = 0
-        else:
-            items = (
-                CartItem.objects
-                .select_related("product")
-                .filter(cart=cart)
-            )
-            cart_total = sum(item.product.price * item.quantity for item in items)
-            
-    context = {
-        "items": items,
-        "cart_total": cart_total,
-    }
-    return render(request, "products/cart_detail.html", context)
+    session_key = request.session.session_key
+    if session_key is None:
+        return redirect("products:cart_detail")
+
+    cart = get_object_or_404(Cart, session_key=session_key)
+    item = get_object_or_404(CartItem, id=item_id, cart=cart)
+
+    raw_quantity = request.POST.get("quantity", "")
+    try:
+        quantity = int(raw_quantity)
+    except (TypeError, ValueError):
+        return redirect("products:cart_detail")
+
+    # 0以下は無効なのでそのまま戻す
+    if quantity <= 0:
+        return redirect("products:cart_detail")
+
+    # 在庫数を上限としてクリップ
+    max_quantity = item.product.stock if item.product.stock > 0 else 1
+    if quantity > max_quantity:
+        quantity = max_quantity
+
+    item.quantity = quantity
+    item.save()
+
+    return redirect("products:cart_detail")
+
 
 @require_POST
 def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
@@ -211,9 +253,9 @@ def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
         return redirect("products:cart_detail")
 
     cart = get_object_or_404(Cart, session_key=session_key)
-    
+
     # 自分の Cart にぶら下がっている CartItem だけを削除対象にする
     item = get_object_or_404(CartItem, id=item_id, cart=cart)
     item.delete()
-    
+
     return redirect("products:cart_detail")
