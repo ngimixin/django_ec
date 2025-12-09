@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static humanize %}
+{% load static humanize cart_extras %}
 {% block title %}
   {{ SITE_TITLE }} | カート
 {% endblock title %}
@@ -14,7 +14,7 @@
         <div class="col-md-5 col-lg-4 order-md-last">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-primary">カート詳細</span>
-            <span class="badge bg-primary rounded-pill">{{ items|length }}</span>
+            <span class="badge bg-primary rounded-pill">総個数 {{ total_quantity }}</span>
           </h4>
           <ul class="list-group mb-3">
             {% if items %}
@@ -22,7 +22,26 @@
                 <li class="list-group-item d-flex justify-content-between lh-sm">
                   <div>
                     <h6 class="my-0">{{ item.product.name }}</h6>
-                    <small class="text-body-secondary">数量: {{ item.quantity }}</small>
+                    {# 在庫数に基づいた数量選択肢を使って数量変更フォームを表示 #}
+                    {% with quantity_range=item_quantity_ranges|get_item:item.product.id %}
+                      {% if quantity_range %}
+                        <form method="post"
+                              action="{% url 'products:cart_item_update' item.id %}"
+                              class="mt-1 d-flex align-items-center gap-2">
+                          {% csrf_token %}
+                          <label class="text-body-secondary mb-0" for="item-quantity-{{ item.id }}">数量:</label>
+                          <select id="item-quantity-{{ item.id }}"
+                                  name="quantity"
+                                  class="form-select form-select-sm d-inline w-auto cart-quantity-select">
+                            {% for qty in quantity_range %}
+                              <option value="{{ qty }}" {% if qty == item.quantity %}selected{% endif %}>{{ qty }}</option>
+                            {% endfor %}
+                          </select>
+                        </form>
+                      {% else %}
+                        <small class="text-body-secondary d-block">数量: {{ item.quantity }}</small>
+                      {% endif %}
+                    {% endwith %}
                   </div>
                   <div class="d-flex align-items-center gap-2">
                     <!-- 1つあたりの価格 -->
@@ -30,7 +49,7 @@
                     <!-- 削除ボタン（POST専用） -->
                     <form method="post" action="{% url 'products:cart_item_delete' item.id %}">
                       {% csrf_token %}
-                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap">
                         <i class="bi bi-trash"></i>
                         削除
                       </button>
@@ -43,7 +62,7 @@
             {% endif %}
             <!-- 合計 -->
             <li class="list-group-item d-flex justify-content-between">
-              <span>合計</span> <strong>￥{{ cart_total|intcomma }}</strong>
+              <span>合計 ({{ total_quantity }}点)</span> <strong>(税込) ￥{{ cart_total|intcomma }}</strong>
             </li>
           </ul>
           <form class="card p-2">
@@ -216,4 +235,18 @@
       </div>
     </main>
   </div>
+  {# 数量変更時に自動でフォームを送信するJS #}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const selects = document.querySelectorAll('.cart-quantity-select');
+
+      selects.forEach(select => {
+        select.addEventListener('change', () => {
+          if (select.form) {
+            select.form.submit();
+          }
+        });
+      });
+    });
+  </script>
 {% endblock content %}
