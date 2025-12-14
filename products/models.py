@@ -48,41 +48,54 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     name = models.CharField(max_length=100, verbose_name="注文者名")
+
+    # NOTE: 電話番号は先頭0・+81・ハイフンなどがあり得るため、数値ではなく文字列で保持する
+    # NOTE: 後から追加したカラムのため、既存レコード対応として NULL/blank を許可 
+    phone = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        verbose_name="注文者電話番号",
+        help_text="配送時にご連絡させていただく事があります",
+    )
     email = models.EmailField(verbose_name="注文者メールアドレス")
+
+    # NOTE: 日本国内向けフォームに寄せるが、DBは1カラムで保持する方針
     address = models.TextField(verbose_name="注文者住所")
+
     total_amount = models.PositiveIntegerField(verbose_name="合計金額")
 
-    # チェックアウト時のクレジットカード情報
-    # 学習用の実装かつ、既存注文データとの互換性を保つため NULL 許可
-    # 実サービスではカード情報はDBに保存しない
+    # チェックアウト時のクレジットカード情報（学習用）
+    # 後から追加したカラムのため、既存レコード対応として NULL/blank を許可
+    # ※ 実サービスではDBに保存しない
     card_number = models.CharField(
         max_length=20,
         null=True,
         blank=True,
         verbose_name="カード番号",
-        help_text="学習用サンプル項目（実サービスでは保存しません）",
     )
-    
-    card_holder = models.CharField(
-        max_length=100,
-        null=True,
-        blank=True,        
-        verbose_name="カード名義人",
-    )
-    
+
     card_expire = models.CharField(
         max_length=7,
         null=True,
         blank=True,
         verbose_name="有効期限（MM/YY）",
     )
-    
+
     card_cvv = models.CharField(
         max_length=4,
         null=True,
         blank=True,
         verbose_name="セキュリティコード",
     )
+
+    card_holder = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        verbose_name="カード名義人",
+    )
+
     class Status(models.TextChoices):
         PENDING = "pending", "未払い"
         PAID = "paid", "支払い済み"
