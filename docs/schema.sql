@@ -49,6 +49,14 @@ CREATE TABLE orders (
   email        VARCHAR NOT NULL,                    -- 購入者メール
   address      TEXT NOT NULL,                       -- 配送先住所
   total_amount INTEGER NOT NULL,                    -- 合計金額（円）
+
+-- チェックアウト時のクレジットカード情報
+-- 学習用・過去データ互換のため NULL 許可（実サービスではカード情報はDB保存しない）
+  card_number  VARCHAR(20) NULL,                -- カード番号
+  card_holder  VARCHAR(100) NULL,               -- カード名義人
+  card_expire  VARCHAR(7) NULL,                 -- 有効期限（MM/YY）
+  card_cvv     VARCHAR(4) NULL,                 -- セキュリティコード
+
   status       VARCHAR(20) NOT NULL DEFAULT 'pending',   -- 'pending' | 'paid' | 'shipped' など想定
   created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
