@@ -31,8 +31,16 @@
   *id              {label: "bigint, not null"}
   name             {label: "varchar(100), not null"}     # 購入者氏名
   email            {label: "varchar, not null"}          # 購入者メール
-  address          {label: "text, not null"}     # 配送先住所
+  address          {label: "text, not null"}             # 配送先住所
   total_amount     {label: "integer, not null"}          # 合計金額（円）
+
+  # チェックアウト時のクレジットカード情報
+  # 学習用・過去データ互換のため NULL 許可（実サービスではカード情報はDB保存しない）
+  card_number      {label: "varchar(20), null"}      # カード番号
+  card_holder      {label: "varchar(100), null"}     # カード名義人
+  card_expire      {label: "varchar(7), null"}       # 有効期限（MM/YY）
+  card_cvv         {label: "varchar(4), null"}       # セキュリティコード
+
   status           {label: "varchar(20), not null"}      # 'pending' | 'paid' | 'shipped' など
   created_at       {label: "datetime, not null"}
   updated_at       {label: "datetime, not null"}

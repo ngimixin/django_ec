@@ -52,6 +52,37 @@ class Order(models.Model):
     address = models.TextField(verbose_name="注文者住所")
     total_amount = models.PositiveIntegerField(verbose_name="合計金額")
 
+    # チェックアウト時のクレジットカード情報
+    # 学習用の実装かつ、既存注文データとの互換性を保つため NULL 許可
+    # 実サービスではカード情報はDBに保存しない
+    card_number = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        verbose_name="カード番号",
+        help_text="学習用サンプル項目（実サービスでは保存しません）",
+    )
+    
+    card_holder = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,        
+        verbose_name="カード名義人",
+    )
+    
+    card_expire = models.CharField(
+        max_length=7,
+        null=True,
+        blank=True,
+        verbose_name="有効期限（MM/YY）",
+    )
+    
+    card_cvv = models.CharField(
+        max_length=4,
+        null=True,
+        blank=True,
+        verbose_name="セキュリティコード",
+    )
     class Status(models.TextChoices):
         PENDING = "pending", "未払い"
         PAID = "paid", "支払い済み"
