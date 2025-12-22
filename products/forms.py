@@ -120,6 +120,18 @@ class OrderCreateForm(forms.ModelForm):
                 field_name
             ]
 
+    def _extract_digits(self, value: str) -> str:
+        """
+        文字列から数字のみを抽出するヘルパーメソッド。
+
+        Args:
+            value: 抽出元の文字列
+
+        Returns:
+            数字のみを含む文字列
+        """
+        return "".join(ch for ch in value if ch.isdigit())
+
     def clean_phone(self) -> str:
         """
         電話番号の簡易チェック（数字だけに整形）。
@@ -128,7 +140,7 @@ class OrderCreateForm(forms.ModelForm):
         - 桁数はざっくり 10〜11 桁を想定（日本の携帯/固定の一般的な範囲）
         """
         phone = (self.cleaned_data.get("phone") or "").strip()
-        digits_only = "".join(ch for ch in phone if ch.isdigit())
+        digits_only = self._extract_digits(phone)
 
         if not (10 <= len(digits_only) <= 11):
             raise forms.ValidationError("電話番号は10〜11桁の数字で入力してください。")
@@ -143,7 +155,7 @@ class OrderCreateForm(forms.ModelForm):
         - 13〜19桁（カード番号の一般的な範囲）でチェック
         """
         value = (self.cleaned_data.get("card_number") or "").strip()
-        digits_only = "".join(ch for ch in value if ch.isdigit())
+        digits_only = self._extract_digits(value)
 
         if not (13 <= len(digits_only) <= 19):
             raise forms.ValidationError(
@@ -160,7 +172,7 @@ class OrderCreateForm(forms.ModelForm):
         - 数字だけに整形して保存する
         """
         value = (self.cleaned_data.get("postal_code") or "").strip()
-        digits_only = "".join(ch for ch in value if ch.isdigit())
+        digits_only = self._extract_digits(value)
 
         # 日本の郵便番号は7桁固定
         if len(digits_only) != 7:
@@ -216,7 +228,7 @@ class OrderCreateForm(forms.ModelForm):
             raise forms.ValidationError("有効期限が過去になっています。")
 
         # 表示揺れを防ぐため MM/YY に正規化
-        return f"{month_str.zfill(2)}/{year_str}"
+        return f"{input_mm:02d}/{year_str}"
 
     def clean_card_cvv(self) -> str:
         """
