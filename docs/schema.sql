@@ -45,14 +45,18 @@ CREATE TABLE cart_items (
 DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders (
   id           BIGSERIAL PRIMARY KEY,
-  name         VARCHAR(100) NOT NULL,               -- 購入者氏名
+  name         VARCHAR(100) NOT NULL,           -- 購入者氏名
   
 -- 後から追加したカラムのため、既存レコード対応として NULL 許可
-  phone        VARCHAR(20) NULL,                   -- 購入者電話番号
+  phone        VARCHAR(20) NULL,                -- 購入者電話番号
+
+  email        VARCHAR NOT NULL,                -- 購入者メール
+
+-- 後から追加したカラムのため、既存レコード対応として NULL 許可
+  postal_code  VARCHAR(8) NULL,                 -- 配送先郵便番号
   
-  email        VARCHAR NOT NULL,                    -- 購入者メール
-  address      TEXT NOT NULL,                       -- 配送先住所
-  total_amount INTEGER NOT NULL,                    -- 合計金額（円）
+  address      TEXT NOT NULL,                   -- 配送先住所
+  total_amount INTEGER NOT NULL,                -- 合計金額（円）
 
 -- チェックアウト時のクレジットカード情報（学習用）
 -- 後から追加したカラムのため、既存レコード対応として NULL 許可

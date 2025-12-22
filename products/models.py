@@ -58,7 +58,17 @@ class Order(models.Model):
         verbose_name="注文者電話番号",
         help_text="配送時にご連絡させていただく事があります",
     )
+
     email = models.EmailField(verbose_name="注文者メールアドレス")
+
+    # NOTE: 日本の郵便番号は先頭0があり得る＆ハイフン入力にも対応したいので CharField
+    # NOTE: 後から追加したカラムのため、既存レコード対応として NULL/blank を許可 
+    postal_code = models.CharField(
+        max_length=8,  # "123-4567" まで想定して8
+        verbose_name="配送先郵便番号",
+        null=True,
+        blank=True,
+    )
 
     # NOTE: 日本国内向けフォームに寄せるが、DBは1カラムで保持する方針
     address = models.TextField(verbose_name="注文者住所")
