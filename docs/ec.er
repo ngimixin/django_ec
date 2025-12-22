@@ -35,6 +35,10 @@
   phone            {label: "varchar(20), null"}          # 購入者電話番号
 
   email            {label: "varchar, not null"}          # 購入者メール
+  
+  # 後から追加したカラムのため、既存レコード対応として NULL 許可
+  postal_code      {label: "varchar(8), null"}          # 配送先郵便番号
+
   address          {label: "text, not null"}             # 配送先住所
   total_amount     {label: "integer, not null"}          # 合計金額（円）
 
