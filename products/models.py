@@ -49,8 +49,8 @@ class CartItem(models.Model):
 class Order(models.Model):
     name = models.CharField(max_length=100, verbose_name="注文者名")
 
-    # NOTE: 電話番号は先頭0・+81・ハイフンなどがあり得るため、数値ではなく文字列で保持する
-    # NOTE: 後から追加したカラムのため、既存レコード対応として NULL/blank を許可 
+    # 電話番号は先頭0・+81・ハイフンなどがあり得るため、数値ではなく文字列で保持する
+    # 後から追加したカラムのため、既存レコード対応として NULL/blank を許可
     phone = models.CharField(
         max_length=20,
         null=True,
@@ -61,8 +61,8 @@ class Order(models.Model):
 
     email = models.EmailField(verbose_name="注文者メールアドレス")
 
-    # NOTE: 日本の郵便番号は先頭0があり得る＆ハイフン入力にも対応したいので CharField
-    # NOTE: 後から追加したカラムのため、既存レコード対応として NULL/blank を許可 
+    # 日本の郵便番号は先頭0があり得る＆ハイフン入力にも対応したいので CharField
+    # 後から追加したカラムのため、既存レコード対応として NULL/blank を許可
     postal_code = models.CharField(
         max_length=8,  # "123-4567" まで想定して8
         verbose_name="配送先郵便番号",
@@ -70,7 +70,7 @@ class Order(models.Model):
         blank=True,
     )
 
-    # NOTE: 日本国内向けフォームに寄せるが、DBは1カラムで保持する方針
+    # 日本国内向けフォームに寄せるが、DBは1カラムで保持する方針
     address = models.TextField(verbose_name="注文者住所")
 
     total_amount = models.PositiveIntegerField(verbose_name="合計金額")
