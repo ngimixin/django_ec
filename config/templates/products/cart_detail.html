@@ -113,27 +113,15 @@
               <div class="col-12">
                 <label class="form-label">郵便番号（半角数字）</label>
                 <!-- 表示用　-->
-                <div class="input-group">
-                  <input type="text"
-                         inputmode="numeric"
-                         maxlength="3"
-                         class="form-control"
-                         id="postal_code_1"
-                         placeholder="000"
-                         autocomplete="postal-code"
-                         required>
-                  <span class="input-group-text">-</span>
-                  <input type="text"
-                         inputmode="numeric"
-                         maxlength="4"
-                         class="form-control"
-                         id="postal_code_2"
-                         placeholder="0000"
-                         autocomplete="postal-code"
-                         required>
-                </div>
-                <!-- Djangoフォームが受け取る郵便番号（7桁） -->
-                <input type="hidden" name="postal_code" id="id_postal_code" />
+                <input type="text"
+                       name="postal_code"
+                       inputmode="numeric"
+                       maxlength="8"
+                       class="form-control"
+                       id="id_postal_code"
+                       placeholder="000-0000"
+                       autocomplete="postal-code"
+                       required>
               </div>
               <!-- 都道府県 -->
               <div class="col-md-4">
@@ -301,25 +289,7 @@
       return (value || "").replace(/\D/g, "");
     }
 
-    // 郵便番号（3桁 + 4桁 → hidden）
-    function syncPostalCodeHidden() {
-      const pc1 = extractDigits(document.getElementById("postal_code_1")?.value);
-      const pc2 = extractDigits(document.getElementById("postal_code_2")?.value);
-
-      const zip =
-        pc1.length === 3 && pc2.length === 4
-          ? pc1 + pc2
-          : "";
-
-      const hidden = document.getElementById("id_postal_code");
-      if (hidden) {
-        hidden.value = zip;
-      }
-
-      return zip;
-    }
-
-    // 住所（分割入力 → hidden）
+    // 住所（入力内容 → hidden）
     function syncAddressHidden() {
       const pref = document.getElementById("prefecture")?.value.trim() || "";
       const city = document.getElementById("city")?.value.trim() || "";
@@ -356,43 +326,71 @@
         const prefSelect = document.getElementById("prefecture");
         if (prefSelect) {
           prefSelect.value = r.address1;
+          prefSelect.dispatchEvent(new Event("change", { bubbles: true }));
         }
 
         const cityInput = document.getElementById("city");
         if (cityInput) {
           cityInput.value = `${r.address2}${r.address3}`;
+          cityInput.dispatchEvent(new Event("input", { bubbles: true }));
         }
       } catch (err) {
         console.warn("ZipCloud autofill failed:", err);
       }
     }
 
-    // 郵便番号hidden同期 → 7桁なら自動補完 → 住所hidden更新
-    async function onZipInput() {
-      const zip = syncPostalCodeHidden();
-
-      if (zip.length === 7) {
-        await autofillByZip(zip);
-      }
-
-      syncAddressHidden();
-    }
+    const addressInputIds = new Set([
+      "id_postal_code",
+      "city",
+      "street",
+      "building",
+    ]);
 
     // チェックアウトフォームだけを対象に hidden を同期（右ペインには影響しない）
     document.addEventListener("DOMContentLoaded", () => {
       const checkoutForm = document.getElementById("checkout-form");
-      if (!checkoutForm) return;
+      if (!checkoutForm) {
+        return;
+      }
+    
+      const zipInput = document.getElementById("id_postal_code");
+      if (!zipInput) {
+        return;
+      }       
+      
+      checkoutForm.addEventListener("input", (e) => {
+        const el = e.target;
+        if (!(el instanceof HTMLInputElement)) {
+          return;
+        }
 
-      document
-        .getElementById("postal_code_1")
-        ?.addEventListener("input", onZipInput);
-      document
-        .getElementById("postal_code_2")
-        ?.addEventListener("input", onZipInput);
+        if (!addressInputIds.has(el.id)) {
+          return;
+        }
+        syncAddressHidden();
+      });
+      
+      checkoutForm.addEventListener("change", (e) => {
+        const el = e.target;
+        if (!(el instanceof HTMLSelectElement)) {
+          return;
+        }
+        if (el.id !== "prefecture") {
+          return;
+        }
+        syncAddressHidden();
+      });
+      
+      zipInput.addEventListener("input", async () => {
+        const zip7 = extractDigits(zipInput.value);
+        if (zip7.length !== 7) {
+          return
+        }
+        await autofillByZip(zip7);
+      });
 
       // 購入ボタン押下「直前」に必ず hidden を最新化
       checkoutForm.addEventListener("submit", () => {
-        syncPostalCodeHidden();
         syncAddressHidden();
       });
     });
