@@ -160,3 +160,10 @@ h5 a:hover {
 .cart-detail .btn-secondary {
   transition: none !important;
 }
+
+/* 商品管理画面のボタンの hover 反転を即反映 */
+.manage-product-list .btn-primary,
+.manage-product-list .btn-outline-secondary,
+.manage-product-list .btn-outline-danger {
+  transition: none !important;
+}
