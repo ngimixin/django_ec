@@ -159,7 +159,7 @@ def cart_detail(request: HttpRequest) -> HttpResponse:
             total_quantity = 0
             item_quantity_ranges = {}
         else:
-            items = CartItem.objects.select_related("product").filter(cart=cart)
+            items = CartItem.objects.select_related("product").filter(cart=cart).order_by("created_at")
 
             cart_total = sum(item.product.price * item.quantity for item in items)
             total_quantity = sum(item.quantity for item in items)
@@ -243,7 +243,7 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     item.quantity = quantity
     item.save()
 
-    items = CartItem.objects.select_related("product").filter(cart=cart)
+    items = CartItem.objects.select_related("product").filter(cart=cart).order_by("created_at")
     cart_total = sum(ci.product.price * ci.quantity for ci in items)
     total_quantity = sum(ci.quantity for ci in items)
 
