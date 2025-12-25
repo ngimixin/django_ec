@@ -1,15 +1,54 @@
-// カート数量変更（右ペイン）
-// 数量セレクト変更時に、そのフォームだけ submit する
-// → チェックアウト用 submit 処理とは完全に独立
+// カート数量変更（右ペイン）を fetch 化して、右ペインだけ更新
 document.addEventListener("DOMContentLoaded", () => {
-  const selects = document.querySelectorAll(".cart-quantity-select");
+  // 右ペイン全体を差し替えるターゲット
+  const summary = document.getElementById("cart-summary");
+  if (!summary) return;
 
-  selects.forEach((select) => {
-    select.addEventListener("change", () => {
-      if (select.form) {
-        select.form.submit();
+  const csrfToken = document.querySelector(
+    'input[name="csrfmiddlewaretoken"]'
+  )?.value;
+  if (!csrfToken) return;
+
+  summary.addEventListener("change", async (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+
+    if (!target.classList.contains("cart-quantity-select")) return;
+
+    const form = target.closest("form");
+    if (!form) return;
+
+    const url = form.getAttribute("action");
+    if (!url) return;
+
+    const formData = new FormData();
+    formData.append("quantity", target.value);
+    formData.append("csrfmiddlewaretoken", csrfToken);
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      if (!res.ok) {
+        window.location.reload();
+        return;
       }
-    });
+
+      const data = await res.json();
+      if (!data.ok || !data.html) {
+        window.location.reload();
+        return;
+      }
+
+      summary.innerHTML = data.html;
+    } catch (e) {
+      window.location.reload();
+    }
   });
 });
 
