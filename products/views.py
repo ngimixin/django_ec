@@ -1,4 +1,5 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.template.loader import render_to_string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
@@ -219,7 +220,7 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     """
     session_key = request.session.session_key
     if session_key is None:
-        return redirect("products:cart_detail")
+        return JsonResponse({"ok": False}, status=400)
 
     cart = get_object_or_404(Cart, session_key=session_key)
     item = get_object_or_404(CartItem, id=item_id, cart=cart)
@@ -228,11 +229,11 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     try:
         quantity = int(raw_quantity)
     except (TypeError, ValueError):
-        return redirect("products:cart_detail")
+        return JsonResponse({"ok": False}, status=400)
 
     # 0以下は無効なのでそのまま戻す
     if quantity <= 0:
-        return redirect("products:cart_detail")
+        return JsonResponse({"ok": False}, status=400)
 
     # 在庫数を上限としてクリップ
     max_quantity = item.product.stock if item.product.stock > 0 else 1
@@ -242,7 +243,29 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     item.quantity = quantity
     item.save()
 
-    return redirect("products:cart_detail")
+    items = CartItem.objects.select_related("product").filter(cart=cart)
+    cart_total = sum(ci.product.price * ci.quantity for ci in items)
+    total_quantity = sum(ci.quantity for ci in items)
+
+    item_quantity_ranges = {
+        ci.product.id: range(1, (ci.product.stock if ci.product.stock > 0 else 1) + 1)
+        for ci in items
+    }
+
+    html = render_to_string(
+        "products/_cart_summary.html",
+        {
+            "items": items,
+            "cart_total": cart_total,
+            "total_quantity": total_quantity,
+            "item_quantity_ranges": item_quantity_ranges,
+        },
+        request=request,
+    )
+
+    return JsonResponse(
+        {"ok": True, "html": html, "item_id": item_id, "quantity": quantity}
+    )
 
 
 @require_POST
