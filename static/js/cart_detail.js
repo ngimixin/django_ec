@@ -2,24 +2,36 @@
 document.addEventListener("DOMContentLoaded", () => {
   // 右ペイン全体を差し替えるターゲット
   const summary = document.getElementById("cart-summary");
-  if (!summary) return;
+  if (!summary) {
+    return;
+  }
 
   const csrfToken = document.querySelector(
     'input[name="csrfmiddlewaretoken"]'
   )?.value;
-  if (!csrfToken) return;
+  if (!csrfToken) {
+    return;
+  }
 
   summary.addEventListener("change", async (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLSelectElement)) return;
+    if (!(target instanceof HTMLSelectElement)) {
+      return;
+    }
 
-    if (!target.classList.contains("cart-quantity-select")) return;
+    if (!target.classList.contains("cart-quantity-select")) {
+      return;
+    }
 
     const form = target.closest("form");
-    if (!form) return;
+    if (!form) {
+      return;
+    }
 
     const url = form.getAttribute("action");
-    if (!url) return;
+    if (!url) {
+      return;
+    }
 
     const formData = new FormData();
     formData.append("quantity", target.value);
@@ -78,17 +90,23 @@ function syncAddressHidden() {
 
 // ZipCloud で郵便番号 → 都道府県/市区町村の自動補完（失敗しても手入力で続行）
 async function autofillByZip(zip) {
-  if (!zip) return;
+  if (!zip) {
+    return;
+  }
 
   try {
     const url = `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${encodeURIComponent(
       zip
     )}`;
     const res = await fetch(url);
-    if (!res.ok) return;
+    if (!res.ok) {
+      return;
+    }
 
     const data = await res.json();
-    if (data.status !== 200 || !data.results?.length) return;
+    if (data.status !== 200 || !data.results?.length) {
+      return;
+    }
 
     const r = data.results[0];
 
