@@ -17,6 +17,7 @@
         <!-- 左ペイン：配送先情報 -->
         <div class="col-md-6 col-lg-7">
           <h4 class="mb-3">お届け先住所</h4>
+          <p class="text-muted small mb-3">※ 電話番号・郵便番号など、数字を入力する項目は半角で入力してください。</p>
           {% comment %} <form method="post" id="checkout-form" action="{% url 'products:order_create' %}" novalidate> {% endcomment %}
           <form method="post" id="checkout-form" novalidate>
             {% csrf_token %}
@@ -28,7 +29,7 @@
                        name="name"
                        class="form-control"
                        id="id_name"
-                       placeholder="山田 太郎"
+                       placeholder="例：山田 太郎"
                        required>
               </div>
               <!-- 電話番号 -->
@@ -38,7 +39,7 @@
                        name="phone"
                        class="form-control"
                        id="id_phone"
-                       placeholder="000-0000-0000"
+                       placeholder="例：000-0000-0000"
                        required>
               </div>
               <!-- Email -->
@@ -48,12 +49,12 @@
                        name="email"
                        class="form-control"
                        id="id_email"
-                       placeholder="example@example.com"
+                       placeholder="例：example@example.com"
                        required>
               </div>
               <!-- 郵便番号 -->
               <div class="col-12">
-                <label class="form-label">郵便番号（半角数字）</label>
+                <label class="form-label">郵便番号</label>
                 <!-- 表示用　-->
                 <input type="text"
                        name="postal_code"
@@ -61,7 +62,7 @@
                        maxlength="8"
                        class="form-control"
                        id="id_postal_code"
-                       placeholder="000-0000"
+                       placeholder="例：000-0000"
                        autocomplete="postal-code"
                        required>
               </div>
@@ -130,7 +131,7 @@
               </div>
               <!-- 丁目・番地・号 -->
               <div class="col-md-12">
-                <label for="street" class="form-label">丁目・番地・号（数字は半角数字）</label>
+                <label for="street" class="form-label">丁目・番地・号</label>
                 <input type="text"
                        class="form-control"
                        id="street"
@@ -150,7 +151,7 @@
             </div>
             <hr class="my-4">
             <h4 class="mb-3">クレジットカード情報</h4>
-            <p>半角英数字で入力してください</p>
+            <p class="text-muted small mb-3">※ クレジットカード情報は半角で入力してください。</p>
             <div class="row gy-3">
               <!-- カード番号 -->
               <div class="col-md-12">
@@ -159,7 +160,7 @@
                        name="card_number"
                        class="form-control"
                        id="cc-number"
-                       placeholder="0000 0000 0000 0000"
+                       placeholder="例：0000 0000 0000 0000"
                        required>
               </div>
               <!-- 有効期限 -->
@@ -173,7 +174,7 @@
                        name="card_expire"
                        class="form-control"
                        id="cc-expiration"
-                       placeholder="01/30"
+                       placeholder="例：01/30"
                        required>
               </div>
               <!-- CVV -->
@@ -187,7 +188,7 @@
                        name="card_cvv"
                        class="form-control"
                        id="cc-cvv"
-                       placeholder="123"
+                       placeholder="例：123"
                        required>
               </div>
               <!-- カード名義人 -->
@@ -197,7 +198,7 @@
                        name="card_holder"
                        class="form-control"
                        id="cc-name"
-                       placeholder="TARO YAMADA"
+                       placeholder="例：TARO YAMADA"
                        required>
                 <small class="text-body-secondary">カードに記載されているとおりに入力してください</small>
               </div>
