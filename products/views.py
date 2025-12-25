@@ -264,7 +264,13 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     )
 
     return JsonResponse(
-        {"ok": True, "html": html, "item_id": item_id, "quantity": quantity}
+        {
+            "ok": True,
+            "html": html,
+            "item_id": item_id,
+            "quantity": quantity,
+            "total_quantity": total_quantity,
+        }
     )
 
 

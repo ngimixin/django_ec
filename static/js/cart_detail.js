@@ -58,6 +58,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       summary.innerHTML = data.html;
+
+      // ナビゲーションバーのカートバッジを更新
+      const cartBadge = document.getElementById("cart-badge");
+      if (cartBadge && typeof data.total_quantity !== "undefined") {
+        cartBadge.textContent = data.total_quantity;
+      }
     } catch (e) {
       window.location.reload();
     }
