@@ -1,6 +1,6 @@
 {% load static humanize cart_extras %}
 <h4 class="d-flex justify-content-between align-items-center mb-3">
-  <span class="text-primary">カート詳細</span>
+  <span class="text-dark">カート詳細</span>
   <span class="badge bg-primary rounded-pill">総個数 {{ total_quantity }}</span>
 </h4>
 <ul class="list-group mb-3">
@@ -8,7 +8,9 @@
     {% for item in items %}
       <li class="list-group-item d-flex justify-content-between lh-sm">
         <div>
-          <h6 class="my-0">{{ item.product.name }}</h6>
+          <h6 class="my-0">
+            <a href="{% url 'products:product_detail' item.product.id %}">{{ item.product.name }}</a>
+          </h6>
           {# 在庫数に基づいた数量選択肢を使って数量変更フォームを表示 #}
           {% with quantity_range=item_quantity_ranges|get_item:item.product.id %}
             {% if quantity_range %}
