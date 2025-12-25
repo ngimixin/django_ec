@@ -41,11 +41,24 @@
 /* ナビゲーションバーの文字色を白にする */
 .navbar.navbar-light .navbar-brand {
   color: #ffffff !important;
+  text-decoration: none;
+  padding: 0.25rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  transition: border-color 0s;
+  line-height: inherit;
+}
+
+.navbar.navbar-light .navbar-brand:hover {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  background-color: transparent !important;
 }
 
 .navbar.navbar-light .btn-outline-dark {
   color: #ffffff !important;
   border-color: #ffffff !important;
+  transition: none !important;
 }
 
 .navbar.navbar-light .btn-outline-dark:hover {
@@ -61,4 +74,89 @@
 /* ハンバーガーメニューアイコン（3本線）の色を白くする */
 .navbar.navbar-light .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* モダンなリンクスタイル：通常時は下線なし、ホバー時にアンダーライン表示 */
+/* カートサマリー内の商品名リンク */
+.product-link-modern,
+.list-group-item h6 a,
+#cart-summary h6 a {
+  color: #212529 !important;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-underline-offset: 0 !important;
+  border-bottom: 1px solid transparent !important;
+  cursor: pointer;
+}
+
+.product-link-modern:link,
+.product-link-modern:visited,
+.product-link-modern:active,
+.list-group-item h6 a:link,
+.list-group-item h6 a:visited,
+.list-group-item h6 a:active,
+#cart-summary h6 a:link,
+#cart-summary h6 a:visited,
+#cart-summary h6 a:active {
+  color: #212529 !important;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-underline-offset: 0 !important;
+  border-bottom: 1px solid transparent !important;
+}
+
+.product-link-modern:hover,
+.list-group-item h6 a:hover,
+#cart-summary h6 a:hover {
+  color: #212529 !important;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-underline-offset: 0 !important;
+  border-bottom-color: #212529 !important;
+}
+
+/* 商品一覧ページのリンクにも適用 */
+h5 a,
+h5 a:link {
+  color: #212529 !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid transparent;
+}
+
+h5 a:hover {
+  color: #212529 !important;
+  text-decoration: none !important;
+  border-bottom-color: #212529;
+}
+
+/* 商品一覧ページの価格リンクにも同じスタイルを適用 */
+.card-body .text-center a,
+.card-body .text-center a:link,
+.card-body .text-center a:visited,
+.card-body .text-center a:active {
+  color: #212529 !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid transparent;
+}
+
+.card-body .text-center a:hover {
+  color: #212529 !important;
+  text-decoration: none !important;
+  border-bottom-color: #212529;
+}
+
+/* 商品一覧・詳細ページの「カートに入れる」ボタンだけ hover 反転を即反映 */
+.product-list .btn-outline-dark,
+.product-detail .btn-outline-dark {
+  transition: none !important;
+}
+
+/* カート詳細ページの削除ボタン、購入ボタン、Redeemボタンの hover 反転を即反映 */
+.cart-detail .btn-outline-danger,
+.cart-detail .btn-primary,
+.cart-detail .btn-secondary {
+  transition: none !important;
 }

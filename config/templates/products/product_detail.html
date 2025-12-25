@@ -1,104 +1,106 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static humanize %}
 {% block title %}
   {{ SITE_TITLE }} | {{ product.name }} | 商品詳細
 {% endblock title %}
 {% block content %}
-  <!-- Product section-->
-  <section class="py-5">
-    <div class="container px-4 px-lg-5 my-5">
-      <div class="row gx-4 gx-lg-5 align-items-center">
-        <div class="col-md-6">
-          <div class="product-image-wrapper mb-5 mb-md-0">
-            {% if product.image %}
-              <img class="card-img-top"
-                   src="{{ product.image.url }}"
-                   alt="{{ product.name }}">
-            {% else %}
-              <img class="card-img-top"
-                   src="https://dummyimage.com/600x700/dee2e6/6c757d.jpg"
-                   alt="{{ product.name }}" />
-            {% endif %}
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="small mb-1">{{ product.sku }}</div>
-          <h1 class="display-5 fw-bolder">{{ product.name }}</h1>
-          <div class="fs-5 mb-5">
-            <span>￥{{ product.price }}</span>
-          </div>
-          <p class="lead">{{ product.description|linebreaks }}</p>
-          <form method="post" action="{% url 'products:add_to_cart' product.id %}">
-            {% csrf_token %}
-            <div class="input-group" style="max-width: 300px;">
-              <select name="quantity"
-                      class="form-select"
-                      style="width: 100px;
-                             flex: 0 0 100px">
-                {% for qty in quantity_range %}
-                  <option value="{{ qty }}" {% if qty == 1 %}selected{% endif %}>{{ qty }}</option>
-                {% endfor %}
-              </select>
-              <button type="submit" class="btn btn-outline-dark">
-                <i class="bi-cart-fill me-1"></i>
-                カートに入れる
-              </button>
+  <div class="product-detail">
+    <!-- Product section-->
+    <section class="py-5">
+      <div class="container px-4 px-lg-5 my-5">
+        <div class="row gx-4 gx-lg-5 align-items-center">
+          <div class="col-md-6">
+            <div class="product-image-wrapper mb-5 mb-md-0">
+              {% if product.image %}
+                <img class="card-img-top"
+                     src="{{ product.image.url }}"
+                     alt="{{ product.name }}">
+              {% else %}
+                <img class="card-img-top"
+                     src="https://dummyimage.com/600x700/dee2e6/6c757d.jpg"
+                     alt="{{ product.name }}" />
+              {% endif %}
             </div>
-          </form>
+          </div>
+          <div class="col-md-6">
+            <div class="small mb-1">{{ product.sku }}</div>
+            <h1 class="display-5 fw-bolder">{{ product.name }}</h1>
+            <div class="fs-5 mb-5">
+              <span>￥{{ product.price|intcomma }}</span>
+            </div>
+            <p class="lead">{{ product.description|linebreaks }}</p>
+            <form method="post" action="{% url 'products:add_to_cart' product.id %}">
+              {% csrf_token %}
+              <div class="input-group" style="max-width: 300px;">
+                <select name="quantity"
+                        class="form-select"
+                        style="width: 100px;
+                               flex: 0 0 100px">
+                  {% for qty in quantity_range %}
+                    <option value="{{ qty }}" {% if qty == 1 %}selected{% endif %}>{{ qty }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline-dark">
+                  <i class="bi-cart-fill me-1"></i>
+                  カートに入れる
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-  <!-- Related items section-->
-  <section class="py-5 bg-light">
-    <div class="container px-4 px-lg-5 mt-5">
-      <h2 class="fw-bolder mb-4">関連商品</h2>
-      {% if related_products %}
-        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-          {% for p in related_products %}
-            <div class="col mb-5">
-              <div class="card h-100">
-                <!-- Product image-->
-                <div class="product-thumb-wrapper">
-                  <a href="{% url 'products:product_detail' p.pk %}">
-                    {% if p.image %}
-                      <img class="card-img-top" src="{{ p.image.url }}" alt="{{ p.name }}" />
-                    {% else %}
-                      <img class="card-img-top"
-                           src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-                           alt="{{ p.name }}" />
-                    {% endif %}
-                  </a>
-                </div>
-                <!-- Product details-->
-                <div class="card-body p-4">
-                  <div class="text-center">
-                    <!-- Product name-->
-                    <h5 class="fw-bolder">
-                      <a href="{% url 'products:product_detail' p.pk %}"
-                         class="text-dark text-decoration-none">{{ p.name }}</a>
-                    </h5>
-                    <!-- Product price-->
-                    <a href="{% url 'products:product_detail' p.pk %}"
-                       class="text-dark text-decoration-none">￥{{ p.price }}</a>
+    </section>
+    <!-- Related items section-->
+    <section class="py-5 bg-light">
+      <div class="container px-4 px-lg-5 mt-5">
+        <h2 class="fw-bolder mb-4">関連商品</h2>
+        {% if related_products %}
+          <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            {% for p in related_products %}
+              <div class="col mb-5">
+                <div class="card h-100">
+                  <!-- Product image-->
+                  <div class="product-thumb-wrapper">
+                    <a href="{% url 'products:product_detail' p.pk %}">
+                      {% if p.image %}
+                        <img class="card-img-top" src="{{ p.image.url }}" alt="{{ p.name }}" />
+                      {% else %}
+                        <img class="card-img-top"
+                             src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
+                             alt="{{ p.name }}" />
+                      {% endif %}
+                    </a>
                   </div>
-                </div>
-                <!-- Product actions-->
-                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                  <div class="text-center">
-                    <form method="post" action="{% url 'products:add_to_cart' p.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-outline-dark">カートに入れる</button>
-                    </form>
+                  <!-- Product details-->
+                  <div class="card-body p-4">
+                    <div class="text-center">
+                      <!-- Product name-->
+                      <h5 class="fw-bolder">
+                        <a href="{% url 'products:product_detail' p.pk %}"
+                           class="text-dark text-decoration-none">{{ p.name }}</a>
+                      </h5>
+                      <!-- Product price-->
+                      <a href="{% url 'products:product_detail' p.pk %}"
+                         class="text-dark text-decoration-none">￥{{ p.price|intcomma }}</a>
+                    </div>
+                  </div>
+                  <!-- Product actions-->
+                  <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                    <div class="text-center">
+                      <form method="post" action="{% url 'products:add_to_cart' p.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-dark">カートに入れる</button>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="alert alert-info">関連商品がありません。</div>
-      {% endif %}
-    </div>
-  </section>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-info">関連商品がありません。</div>
+        {% endif %}
+      </div>
+    </section>
+  </div>
 {% endblock content %}

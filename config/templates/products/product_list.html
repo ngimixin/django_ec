@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static humanize %}
 {% block title %}
   {{ SITE_TITLE }} | 商品一覧
 {% endblock title %}
@@ -19,7 +19,7 @@
     </div>
   </header>
   <!-- Section-->
-  <section class="py-5">
+  <section class="py-5 product-list">
     <div class="container px-4 px-lg-5 mt-5">
       {% if products %}
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
@@ -50,7 +50,7 @@
                     </h5>
                     <!-- Product price-->
                     <a href="{% url 'products:product_detail' product.pk %}"
-                       class="text-dark text-decoration-none">￥{{ product.price }}</a>
+                       class="text-dark text-decoration-none">￥{{ product.price|intcomma }}</a>
                   </div>
                 </div>
                 <!-- Product actions-->
