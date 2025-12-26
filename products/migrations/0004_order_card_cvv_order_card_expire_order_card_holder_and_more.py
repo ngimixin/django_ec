@@ -6,28 +6,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0003_alter_product_sku'),
+        ("products", "0003_alter_product_sku"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='card_cvv',
-            field=models.CharField(blank=True, max_length=4, null=True, verbose_name='セキュリティコード'),
+            model_name="order",
+            name="card_cvv",
+            field=models.CharField(
+                blank=True, max_length=4, null=True, verbose_name="セキュリティコード"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='card_expire',
-            field=models.CharField(blank=True, max_length=7, null=True, verbose_name='有効期限（MM/YY）'),
+            model_name="order",
+            name="card_expire",
+            field=models.CharField(
+                blank=True, max_length=7, null=True, verbose_name="有効期限（MM/YY）"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='card_holder',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='カード名義人'),
+            model_name="order",
+            name="card_holder",
+            field=models.CharField(
+                blank=True, max_length=100, null=True, verbose_name="カード名義人"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='card_number',
-            field=models.CharField(blank=True, help_text='学習用サンプル項目（実サービスでは保存しません）', max_length=20, null=True, verbose_name='カード番号'),
+            model_name="order",
+            name="card_number",
+            field=models.CharField(
+                blank=True,
+                help_text="学習用サンプル項目（実サービスでは保存しません）",
+                max_length=20,
+                null=True,
+                verbose_name="カード番号",
+            ),
         ),
     ]

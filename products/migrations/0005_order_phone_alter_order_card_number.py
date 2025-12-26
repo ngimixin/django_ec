@@ -6,18 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0004_order_card_cvv_order_card_expire_order_card_holder_and_more'),
+        (
+            "products",
+            "0004_order_card_cvv_order_card_expire_order_card_holder_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='phone',
-            field=models.CharField(blank=True, help_text='配送時にご連絡させていただく事があります', max_length=20, null=True, verbose_name='注文者電話番号'),
+            model_name="order",
+            name="phone",
+            field=models.CharField(
+                blank=True,
+                help_text="配送時にご連絡させていただく事があります",
+                max_length=20,
+                null=True,
+                verbose_name="注文者電話番号",
+            ),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='card_number',
-            field=models.CharField(blank=True, max_length=20, null=True, verbose_name='カード番号'),
+            model_name="order",
+            name="card_number",
+            field=models.CharField(
+                blank=True, max_length=20, null=True, verbose_name="カード番号"
+            ),
         ),
     ]

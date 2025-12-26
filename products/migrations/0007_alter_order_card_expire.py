@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0006_order_postal_code'),
+        ("products", "0006_order_postal_code"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='order',
-            name='card_expire',
-            field=models.CharField(blank=True, max_length=5, null=True, verbose_name='有効期限（MM/YY）'),
+            model_name="order",
+            name="card_expire",
+            field=models.CharField(
+                blank=True, max_length=5, null=True, verbose_name="有効期限（MM/YY）"
+            ),
         ),
     ]
