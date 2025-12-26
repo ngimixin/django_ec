@@ -18,8 +18,10 @@
         <div class="col-md-6 col-lg-7">
           <h4 class="mb-3">お届け先住所</h4>
           <p class="text-muted small mb-3">※ 電話番号・郵便番号など、数字を入力する項目は半角で入力してください。</p>
-          {% comment %} <form method="post" id="checkout-form" action="{% url 'products:order_create' %}" novalidate> {% endcomment %}
-          <form method="post" id="checkout-form" novalidate>
+          <form method="post"
+                id="checkout-form"
+                action="{% url 'products:order_create' %}"
+                novalidate>
             {% csrf_token %}
             <div class="row g-3">
               <!-- 氏名 -->
@@ -27,30 +29,36 @@
                 <label for="id_name" class="form-label">お名前</label>
                 <input type="text"
                        name="name"
-                       class="form-control"
+                       class="form-control {% if form and form.name.errors %}is-invalid{% endif %}"
                        id="id_name"
                        placeholder="例：山田 太郎"
+                       value="{% if form %}{{ form.data.name|default_if_none:'' }}{% endif %}"
                        required>
+                {% if form and form.name.errors %}<div class="invalid-feedback">{{ form.name.errors|join:", " }}</div>{% endif %}
               </div>
               <!-- 電話番号 -->
               <div class="col-12">
                 <label for="id_phone" class="form-label">電話番号</label>
                 <input type="text"
                        name="phone"
-                       class="form-control"
+                       class="form-control {% if form and form.phone.errors %}is-invalid{% endif %}"
                        id="id_phone"
                        placeholder="例：000-0000-0000"
+                       value="{% if form %}{{ form.data.phone|default_if_none:'' }}{% endif %}"
                        required>
+                {% if form and form.phone.errors %}<div class="invalid-feedback">{{ form.phone.errors|join:", " }}</div>{% endif %}
               </div>
               <!-- Email -->
               <div class="col-12">
                 <label for="id_email" class="form-label">Email</label>
                 <input type="email"
                        name="email"
-                       class="form-control"
+                       class="form-control {% if form and form.email.errors %}is-invalid{% endif %}"
                        id="id_email"
                        placeholder="例：example@example.com"
+                       value="{% if form %}{{ form.data.email|default_if_none:'' }}{% endif %}"
                        required>
+                {% if form and form.email.errors %}<div class="invalid-feedback">{{ form.email.errors|join:", " }}</div>{% endif %}
               </div>
               <!-- 郵便番号 -->
               <div class="col-12">
@@ -60,11 +68,15 @@
                        name="postal_code"
                        inputmode="numeric"
                        maxlength="8"
-                       class="form-control"
+                       class="form-control {% if form and form.postal_code.errors %}is-invalid{% endif %}"
                        id="id_postal_code"
                        placeholder="例：000-0000"
+                       value="{% if form %}{{ form.data.postal_code|default_if_none:'' }}{% endif %}"
                        autocomplete="postal-code"
                        required>
+                {% if form and form.postal_code.errors %}
+                  <div class="invalid-feedback">{{ form.postal_code.errors|join:", " }}</div>
+                {% endif %}
               </div>
               <!-- 都道府県 -->
               <div class="col-md-4">
@@ -158,10 +170,14 @@
                 <label for="cc-number" class="form-label">カード番号</label>
                 <input type="text"
                        name="card_number"
-                       class="form-control"
+                       class="form-control {% if form and form.card_number.errors %}is-invalid{% endif %}"
                        id="cc-number"
                        placeholder="例：0000 0000 0000 0000"
+                       value="{% if form %}{{ form.data.card_number|default_if_none:'' }}{% endif %}"
                        required>
+                {% if form and form.card_number.errors %}
+                  <div class="invalid-feedback">{{ form.card_number.errors|join:", " }}</div>
+                {% endif %}
               </div>
               <!-- 有効期限 -->
               <div class="col-md-6">
@@ -172,10 +188,14 @@
                 </label>
                 <input type="text"
                        name="card_expire"
-                       class="form-control"
+                       class="form-control {% if form and form.card_expire.errors %}is-invalid{% endif %}"
                        id="cc-expiration"
                        placeholder="例：01/30"
+                       value="{% if form %}{{ form.data.card_expire|default_if_none:'' }}{% endif %}"
                        required>
+                {% if form and form.card_expire.errors %}
+                  <div class="invalid-feedback">{{ form.card_expire.errors|join:", " }}</div>
+                {% endif %}
               </div>
               <!-- CVV -->
               <div class="col-md-6">
@@ -186,21 +206,29 @@
                 </label>
                 <input type="text"
                        name="card_cvv"
-                       class="form-control"
+                       class="form-control {% if form and form.card_cvv.errors %}is-invalid{% endif %}"
                        id="cc-cvv"
                        placeholder="例：123"
+                       value="{% if form %}{{ form.data.card_cvv|default_if_none:'' }}{% endif %}"
                        required>
+                {% if form and form.card_cvv.errors %}
+                  <div class="invalid-feedback">{{ form.card_cvv.errors|join:", " }}</div>
+                {% endif %}
               </div>
               <!-- カード名義人 -->
               <div class="col-md-12">
                 <label for="cc-name" class="form-label">カード名義人</label>
                 <input type="text"
                        name="card_holder"
-                       class="form-control"
+                       class="form-control {% if form and form.card_holder.errors %}is-invalid{% endif %}"
                        id="cc-name"
                        placeholder="例：TARO YAMADA"
+                       value="{% if form %}{{ form.data.card_holder|default_if_none:'' }}{% endif %}"
                        required>
                 <small class="text-body-secondary">カードに記載されているとおりに入力してください</small>
+                {% if form and form.card_holder.errors %}
+                  <div class="invalid-feedback">{{ form.card_holder.errors|join:", " }}</div>
+                {% endif %}
               </div>
             </div>
             <hr class="my-4">
