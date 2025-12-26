@@ -86,7 +86,7 @@ class Order(models.Model):
     )
 
     card_expire = models.CharField(
-        max_length=7,
+        max_length=5,
         null=True,
         blank=True,
         verbose_name="有効期限（MM/YY）",
