@@ -52,43 +52,11 @@ class OrderCreateForm(forms.ModelForm):
             "card_cvv",
             "card_holder",
         ]
-        widgets = {
-            # --- 注文者情報 ---
-            "name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "山田 太郎"}
-            ),
-            "phone": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "000-0000-0000"}
-            ),
-            "email": forms.EmailInput(
-                attrs={"class": "form-control", "placeholder": "you@example.com"}
-            ),
-            "postal_code": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "000-0000"}
-            ),
-            "address": forms.Textarea(
-                attrs={"class": "form-control", "rows": 3, "placeholder": "住所"}
-            ),
-            # --- クレジットカード情報（学習用） ---
-            "card_number": forms.TextInput(
-                # NOTE: ハイフンは入力されがちなので、バリデーション側で無視する
-                attrs={"class": "form-control", "placeholder": "0000 0000 0000 0000"}
-            ),
-            "card_expire": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "MM/YY"}
-            ),
-            "card_cvv": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "000"}
-            ),
-            "card_holder": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "TARO TANAKA"}
-            ),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # 画面表示上は必須にする項目
+        # 受け取るデータとして必須項目（分割入力を JS で統合した hidden を含む）
         required_fields = [
             "name",
             "phone",
@@ -115,8 +83,6 @@ class OrderCreateForm(forms.ModelForm):
 
         for field_name in required_fields:
             self.fields[field_name].required = True
-
-            # Django のデフォルト「このフィールドは必須です。」を、狙った文言に置き換える
             self.fields[field_name].error_messages["required"] = required_messages[
                 field_name
             ]
