@@ -1,3 +1,5 @@
+import unicodedata
+
 from django import forms
 from django.utils import timezone
 
@@ -86,24 +88,32 @@ class OrderCreateForm(forms.ModelForm):
             self.fields[field_name].error_messages["required"] = required_messages[
                 field_name
             ]
+            self.fields["email"].error_messages[
+                "invalid"
+            ] = "メールアドレスは半角で入力してください（例：user@example.com）。"
 
     def _extract_digits(self, value: str) -> str:
         """
-        文字列から数字のみを抽出するヘルパーメソッド。
+        文字列から数字のみを抽出し、半角数字に正規化する。
+
+        - 全角数字は半角数字に変換される
+        - ハイフンやスペースなどの記号は除去される
 
         Args:
             value: 抽出元の文字列
 
         Returns:
-            数字のみを含む文字列
+            半角数字のみを含む文字列
         """
-        return "".join(ch for ch in value if ch.isdigit())
+        return unicodedata.normalize(
+            "NFKC", "".join(ch for ch in value if ch.isdigit())
+        )
 
     def clean_phone(self) -> str:
         """
         電話番号の簡易チェック（数字だけに整形）。
 
-        - 入力に「-」やスペースが混ざってもOKにする
+        - 入力に「-」やスペースが混ざっても除去し、半角数字に変換する
         - 桁数はざっくり 10〜11 桁を想定（日本の携帯/固定の一般的な範囲）
         """
         phone = (self.cleaned_data.get("phone") or "").strip()
@@ -118,7 +128,7 @@ class OrderCreateForm(forms.ModelForm):
         """
         カード番号の簡易チェック（学習用）。
 
-        - 入力にスペースやハイフンが混ざってもOKにする
+        - 入力に「-」やスペースが混ざっても除去し、半角数字に変換する
         - 13〜19桁（カード番号の一般的な範囲）でチェック
         """
         value = (self.cleaned_data.get("card_number") or "").strip()
@@ -135,8 +145,8 @@ class OrderCreateForm(forms.ModelForm):
         """
         郵便番号の簡易チェック。
 
-        - 「123-4567」「1234567」どちらも許容
-        - 数字だけに整形して保存する
+        - 入力に「-」やスペースが混ざっても除去し、半角数字に変換する
+        - ７桁の数字に整形する
         """
         value = (self.cleaned_data.get("postal_code") or "").strip()
         digits_only = self._extract_digits(value)
@@ -152,17 +162,19 @@ class OrderCreateForm(forms.ModelForm):
         有効期限（MM/YY）の簡易チェック（学習用）。
 
         - 「MM/YY」形式のみ許容
+        - 全角英数字は半角英数字に変換する
         - 月は 01〜12 の範囲でチェック
         - 期限切れ（今月より前）を弾く
         """
         value = (self.cleaned_data.get("card_expire") or "").strip()
+        normalized_value = unicodedata.normalize("NFKC", value)
 
         # MM/YY 形式チェック
-        if "/" not in value:
+        if "/" not in normalized_value:
             raise forms.ValidationError("有効期限は MM/YY 形式で入力してください。")
 
         try:
-            month_str, year_str = value.split("/")
+            month_str, year_str = normalized_value.split("/")
             month_str = month_str.strip()
             year_str = year_str.strip()
         except ValueError:
@@ -201,19 +213,21 @@ class OrderCreateForm(forms.ModelForm):
         """
         セキュリティコード（CVV）の簡易チェック（学習用）。
 
+        - 全角数字は半角数字に変換する
         - 3〜4桁の数字のみ許容
         """
         value = (self.cleaned_data.get("card_cvv") or "").strip()
+        normalized_value = unicodedata.normalize("NFKC", value)
 
-        if not value.isdigit():
+        if not normalized_value.isdigit():
             raise forms.ValidationError("セキュリティコードは数字で入力してください。")
 
-        if not (3 <= len(value) <= 4):
+        if not (3 <= len(normalized_value) <= 4):
             raise forms.ValidationError(
                 "セキュリティコードは3〜4桁で入力してください。"
             )
 
-        return value
+        return normalized_value
 
     def clean_card_holder(self) -> str:
         """
