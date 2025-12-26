@@ -29,4 +29,6 @@ urlpatterns = [
     path("cart/add/<int:product_id>/", views.add_to_cart, name="add_to_cart"),
     path("cart/update/<int:item_id>/", views.cart_item_update, name="cart_item_update"),
     path("cart/delete/<int:item_id>/", views.cart_item_delete, name="cart_item_delete"),
+    # --- 注文関連 ---
+    path("order/create/", views.order_create, name="order_create"),
 ]

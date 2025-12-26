@@ -1,13 +1,15 @@
 from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.contrib import messages
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.db import transaction
 
 from products.services.cart import get_or_create_cart
 
-from .models import Product, Cart, CartItem
+from .models import Product, Cart, CartItem, Order, OrderItem
 from config.decorators import basic_auth_required as auth
-from .forms import ProductForm
+from .forms import ProductForm, OrderCreateForm
 from .utils import get_quantity_range
 
 
@@ -159,7 +161,11 @@ def cart_detail(request: HttpRequest) -> HttpResponse:
             total_quantity = 0
             item_quantity_ranges = {}
         else:
-            items = CartItem.objects.select_related("product").filter(cart=cart).order_by("created_at")
+            items = (
+                CartItem.objects.select_related("product")
+                .filter(cart=cart)
+                .order_by("created_at")
+            )
 
             cart_total = sum(item.product.price * item.quantity for item in items)
             total_quantity = sum(item.quantity for item in items)
@@ -243,7 +249,11 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     item.quantity = quantity
     item.save()
 
-    items = CartItem.objects.select_related("product").filter(cart=cart).order_by("created_at")
+    items = (
+        CartItem.objects.select_related("product")
+        .filter(cart=cart)
+        .order_by("created_at")
+    )
     cart_total = sum(ci.product.price * ci.quantity for ci in items)
     total_quantity = sum(ci.quantity for ci in items)
 
@@ -276,15 +286,76 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
 
 @require_POST
 def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
-    # セッションキーから Cart を特定
     session_key = request.session.session_key
     if session_key is None:
         return redirect("products:cart_detail")
 
     cart = get_object_or_404(Cart, session_key=session_key)
-
-    # 自分の Cart にぶら下がっている CartItem だけを削除対象にする
     item = get_object_or_404(CartItem, id=item_id, cart=cart)
     item.delete()
 
     return redirect("products:cart_detail")
+
+
+@require_POST
+def order_create(request: HttpRequest) -> HttpResponse:
+    """
+    注文を作成するビュー。
+    """
+    form = OrderCreateForm(request.POST)
+
+    session_key = request.session.session_key
+    if not session_key:
+        request.session.create()
+        session_key = request.session.session_key
+
+    cart = Cart.objects.filter(session_key=session_key).first()
+    if not cart:
+        messages.warning(request, "カートに商品がありません。")
+        return redirect("products:product_list")
+
+    cart_items = CartItem.objects.select_related("product").filter(cart=cart)
+    if not cart_items.exists():
+        messages.warning(request, "カートに商品がありません。")
+        return redirect("products:product_list")
+
+    if not form.is_valid():
+        items = list(cart_items)
+        cart_total = sum(item.product.price * item.quantity for item in items)
+        total_quantity = sum(item.quantity for item in items)
+        item_quantity_ranges = {}
+        for item in items:
+            quantity_range = get_quantity_range(item.product)
+            item_quantity_ranges[item.product.id] = quantity_range
+
+        context = {
+            "items": items,
+            "cart_total": cart_total,
+            "total_quantity": total_quantity,
+            "item_quantity_ranges": item_quantity_ranges,
+            "form": form,
+        }
+        return render(request, "products/cart_detail.html", context)
+
+    with transaction.atomic():
+        order: Order = form.save(commit=False)
+
+        total_amount = 0
+        for ci in cart_items:
+            total_amount += int(ci.product.price) * int(ci.quantity)
+
+        order.total_amount = total_amount
+        order.save()
+
+        for ci in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=ci.product,
+                price=ci.product.price,  # 購入時点の単価
+                quantity=ci.quantity,
+            )
+
+        cart.delete()
+
+    messages.success(request, "購入ありがとうございます。")
+    return redirect("products:product_list")
