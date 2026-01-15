@@ -26,7 +26,9 @@
             <div class="row g-3">
               <!-- 氏名 -->
               <div class="col-12">
-                <label for="id_name" class="form-label">お名前</label>
+                <label for="id_name" class="form-label">
+                  お名前 <span class="badge bg-danger ms-2">必須</span>
+                </label>
                 <input type="text"
                        name="name"
                        class="form-control {% if form and form.name.errors %}is-invalid{% endif %}"
@@ -38,7 +40,9 @@
               </div>
               <!-- 電話番号 -->
               <div class="col-12">
-                <label for="id_phone" class="form-label">電話番号</label>
+                <label for="id_phone" class="form-label">
+                  電話番号 <span class="badge bg-danger ms-2">必須</span>
+                </label>
                 <input type="text"
                        name="phone"
                        class="form-control {% if form and form.phone.errors %}is-invalid{% endif %}"
@@ -50,7 +54,9 @@
               </div>
               <!-- Email -->
               <div class="col-12">
-                <label for="id_email" class="form-label">Email</label>
+                <label for="id_email" class="form-label">
+                  Email <span class="badge bg-danger ms-2">必須</span>
+                </label>
                 <input type="email"
                        name="email"
                        class="form-control {% if form and form.email.errors %}is-invalid{% endif %}"
@@ -62,7 +68,9 @@
               </div>
               <!-- 郵便番号 -->
               <div class="col-12">
-                <label class="form-label">郵便番号</label>
+                <label for="id_postal_code" class="form-label">
+                  郵便番号 <span class="badge bg-danger ms-2">必須</span>
+                </label>
                 <!-- 表示用　-->
                 <input type="text"
                        name="postal_code"
@@ -80,86 +88,153 @@
               </div>
               <!-- 都道府県 -->
               <div class="col-md-4">
-                <label for="prefecture" class="form-label">都道府県</label>
-                <select class="form-select" id="prefecture" required>
+                <label for="id_prefecture" class="form-label">
+                  都道府県 <span class="badge bg-danger ms-2">必須</span>
+                </label>
+                <select name="prefecture"
+                        class="form-select {% if form and form.prefecture.errors %}is-invalid{% endif %}"
+                        id="id_prefecture"
+                        required>
                   <option value="">選択して下さい</option>
-                  <option value="北海道">北海道</option>
-                  <option value="青森県">青森県</option>
-                  <option value="岩手県">岩手県</option>
-                  <option value="宮城県">宮城県</option>
-                  <option value="秋田県">秋田県</option>
-                  <option value="山形県">山形県</option>
-                  <option value="福島県">福島県</option>
-                  <option value="茨城県">茨城県</option>
-                  <option value="栃木県">栃木県</option>
-                  <option value="群馬県">群馬県</option>
-                  <option value="埼玉県">埼玉県</option>
-                  <option value="千葉県">千葉県</option>
-                  <option value="東京都">東京都</option>
-                  <option value="神奈川県">神奈川県</option>
-                  <option value="新潟県">新潟県</option>
-                  <option value="富山県">富山県</option>
-                  <option value="石川県">石川県</option>
-                  <option value="福井県">福井県</option>
-                  <option value="山梨県">山梨県</option>
-                  <option value="長野県">長野県</option>
-                  <option value="岐阜県">岐阜県</option>
-                  <option value="静岡県">静岡県</option>
-                  <option value="愛知県">愛知県</option>
-                  <option value="三重県">三重県</option>
-                  <option value="滋賀県">滋賀県</option>
-                  <option value="京都府">京都府</option>
-                  <option value="大阪府">大阪府</option>
-                  <option value="兵庫県">兵庫県</option>
-                  <option value="奈良県">奈良県</option>
-                  <option value="和歌山県">和歌山県</option>
-                  <option value="鳥取県">鳥取県</option>
-                  <option value="島根県">島根県</option>
-                  <option value="岡山県">岡山県</option>
-                  <option value="広島県">広島県</option>
-                  <option value="山口県">山口県</option>
-                  <option value="徳島県">徳島県</option>
-                  <option value="香川県">香川県</option>
-                  <option value="愛媛県">愛媛県</option>
-                  <option value="高知県">高知県</option>
-                  <option value="福岡県">福岡県</option>
-                  <option value="佐賀県">佐賀県</option>
-                  <option value="長崎県">長崎県</option>
-                  <option value="熊本県">熊本県</option>
-                  <option value="大分県">大分県</option>
-                  <option value="宮崎県">宮崎県</option>
-                  <option value="鹿児島県">鹿児島県</option>
-                  <option value="沖縄県">沖縄県</option>
+                  <option value="北海道"
+                          {% if form and form.data.prefecture == '北海道' %}selected{% endif %}>北海道</option>
+                  <option value="青森県"
+                          {% if form and form.data.prefecture == '青森県' %}selected{% endif %}>青森県</option>
+                  <option value="岩手県"
+                          {% if form and form.data.prefecture == '岩手県' %}selected{% endif %}>岩手県</option>
+                  <option value="宮城県"
+                          {% if form and form.data.prefecture == '宮城県' %}selected{% endif %}>宮城県</option>
+                  <option value="秋田県"
+                          {% if form and form.data.prefecture == '秋田県' %}selected{% endif %}>秋田県</option>
+                  <option value="山形県"
+                          {% if form and form.data.prefecture == '山形県' %}selected{% endif %}>山形県</option>
+                  <option value="福島県"
+                          {% if form and form.data.prefecture == '福島県' %}selected{% endif %}>福島県</option>
+                  <option value="茨城県"
+                          {% if form and form.data.prefecture == '茨城県' %}selected{% endif %}>茨城県</option>
+                  <option value="栃木県"
+                          {% if form and form.data.prefecture == '栃木県' %}selected{% endif %}>栃木県</option>
+                  <option value="群馬県"
+                          {% if form and form.data.prefecture == '群馬県' %}selected{% endif %}>群馬県</option>
+                  <option value="埼玉県"
+                          {% if form and form.data.prefecture == '埼玉県' %}selected{% endif %}>埼玉県</option>
+                  <option value="千葉県"
+                          {% if form and form.data.prefecture == '千葉県' %}selected{% endif %}>千葉県</option>
+                  <option value="東京都"
+                          {% if form and form.data.prefecture == '東京都' %}selected{% endif %}>東京都</option>
+                  <option value="神奈川県"
+                          {% if form and form.data.prefecture == '神奈川県' %}selected{% endif %}>神奈川県</option>
+                  <option value="新潟県"
+                          {% if form and form.data.prefecture == '新潟県' %}selected{% endif %}>新潟県</option>
+                  <option value="富山県"
+                          {% if form and form.data.prefecture == '富山県' %}selected{% endif %}>富山県</option>
+                  <option value="石川県"
+                          {% if form and form.data.prefecture == '石川県' %}selected{% endif %}>石川県</option>
+                  <option value="福井県"
+                          {% if form and form.data.prefecture == '福井県' %}selected{% endif %}>福井県</option>
+                  <option value="山梨県"
+                          {% if form and form.data.prefecture == '山梨県' %}selected{% endif %}>山梨県</option>
+                  <option value="長野県"
+                          {% if form and form.data.prefecture == '長野県' %}selected{% endif %}>長野県</option>
+                  <option value="岐阜県"
+                          {% if form and form.data.prefecture == '岐阜県' %}selected{% endif %}>岐阜県</option>
+                  <option value="静岡県"
+                          {% if form and form.data.prefecture == '静岡県' %}selected{% endif %}>静岡県</option>
+                  <option value="愛知県"
+                          {% if form and form.data.prefecture == '愛知県' %}selected{% endif %}>愛知県</option>
+                  <option value="三重県"
+                          {% if form and form.data.prefecture == '三重県' %}selected{% endif %}>三重県</option>
+                  <option value="滋賀県"
+                          {% if form and form.data.prefecture == '滋賀県' %}selected{% endif %}>滋賀県</option>
+                  <option value="京都府"
+                          {% if form and form.data.prefecture == '京都府' %}selected{% endif %}>京都府</option>
+                  <option value="大阪府"
+                          {% if form and form.data.prefecture == '大阪府' %}selected{% endif %}>大阪府</option>
+                  <option value="兵庫県"
+                          {% if form and form.data.prefecture == '兵庫県' %}selected{% endif %}>兵庫県</option>
+                  <option value="奈良県"
+                          {% if form and form.data.prefecture == '奈良県' %}selected{% endif %}>奈良県</option>
+                  <option value="和歌山県"
+                          {% if form and form.data.prefecture == '和歌山県' %}selected{% endif %}>和歌山県</option>
+                  <option value="鳥取県"
+                          {% if form and form.data.prefecture == '鳥取県' %}selected{% endif %}>鳥取県</option>
+                  <option value="島根県"
+                          {% if form and form.data.prefecture == '島根県' %}selected{% endif %}>島根県</option>
+                  <option value="岡山県"
+                          {% if form and form.data.prefecture == '岡山県' %}selected{% endif %}>岡山県</option>
+                  <option value="広島県"
+                          {% if form and form.data.prefecture == '広島県' %}selected{% endif %}>広島県</option>
+                  <option value="山口県"
+                          {% if form and form.data.prefecture == '山口県' %}selected{% endif %}>山口県</option>
+                  <option value="徳島県"
+                          {% if form and form.data.prefecture == '徳島県' %}selected{% endif %}>徳島県</option>
+                  <option value="香川県"
+                          {% if form and form.data.prefecture == '香川県' %}selected{% endif %}>香川県</option>
+                  <option value="愛媛県"
+                          {% if form and form.data.prefecture == '愛媛県' %}selected{% endif %}>愛媛県</option>
+                  <option value="高知県"
+                          {% if form and form.data.prefecture == '高知県' %}selected{% endif %}>高知県</option>
+                  <option value="福岡県"
+                          {% if form and form.data.prefecture == '福岡県' %}selected{% endif %}>福岡県</option>
+                  <option value="佐賀県"
+                          {% if form and form.data.prefecture == '佐賀県' %}selected{% endif %}>佐賀県</option>
+                  <option value="長崎県"
+                          {% if form and form.data.prefecture == '長崎県' %}selected{% endif %}>長崎県</option>
+                  <option value="熊本県"
+                          {% if form and form.data.prefecture == '熊本県' %}selected{% endif %}>熊本県</option>
+                  <option value="大分県"
+                          {% if form and form.data.prefecture == '大分県' %}selected{% endif %}>大分県</option>
+                  <option value="宮崎県"
+                          {% if form and form.data.prefecture == '宮崎県' %}selected{% endif %}>宮崎県</option>
+                  <option value="鹿児島県"
+                          {% if form and form.data.prefecture == '鹿児島県' %}selected{% endif %}>鹿児島県</option>
+                  <option value="沖縄県"
+                          {% if form and form.data.prefecture == '沖縄県' %}selected{% endif %}>沖縄県</option>
                 </select>
+                {% if form and form.prefecture.errors %}
+                  <div class="invalid-feedback">{{ form.prefecture.errors|join:", " }}</div>
+                {% endif %}
               </div>
               <!-- 市区町村 -->
               <div class="col-md-8">
-                <label for="city" class="form-label">市区町村</label>
+                <label for="city" class="form-label">
+                  市区町村 <span class="badge bg-danger ms-2">必須</span>
+                </label>
                 <input type="text"
-                       class="form-control"
-                       id="city"
+                       name="city"
+                       class="form-control {% if form and form.city.errors %}is-invalid{% endif %}"
+                       id="id_city"
                        placeholder="例：〇〇市〇〇町"
+                       value="{% if form %}{{ form.data.city|default_if_none:'' }}{% endif %}"
                        required>
+                {% if form and form.city.errors %}<div class="invalid-feedback">{{ form.city.errors|join:", " }}</div>{% endif %}
               </div>
               <!-- 丁目・番地・号 -->
               <div class="col-md-12">
-                <label for="street" class="form-label">丁目・番地・号</label>
+                <label for="street" class="form-label">
+                  丁目・番地・号 <span class="badge bg-danger ms-2">必須</span>
+                </label>
                 <input type="text"
-                       class="form-control"
-                       id="street"
+                       name="street"
+                       class="form-control {% if form and form.street.errors %}is-invalid{% endif %}"
+                       id="id_street"
                        placeholder="例：1-2-3"
+                       value="{% if form %}{{ form.data.street|default_if_none:'' }}{% endif %}"
                        required>
+                {% if form and form.street.errors %}<div class="invalid-feedback">{{ form.street.errors|join:", " }}</div>{% endif %}
               </div>
               <!-- 建物名／会社名・部屋番号 -->
               <div class="col-md-12">
-                <label for="building" class="form-label">建物名／会社名・部屋番号</label>
+                <label for="building" class="form-label">
+                  建物名／会社名・部屋番号 <span class="text-muted">（任意）</span>
+                </label>
                 <input type="text"
+                       name="building"
                        class="form-control"
-                       id="building"
-                       placeholder="例：〇〇マンション101">
+                       id="id_building"
+                       placeholder="例：〇〇マンション101"
+                       value="{% if form %}{{ form.data.building|default_if_none:'' }}{% endif %}">
               </div>
-              <!-- Djangoフォームが受け取る結合済み住所 -->
-              <input type="hidden" name="address" id="id_address" />
             </div>
             <hr class="my-4">
             <h4 class="mb-3">クレジットカード情報</h4>
@@ -167,7 +242,9 @@
             <div class="row gy-3">
               <!-- カード番号 -->
               <div class="col-md-12">
-                <label for="cc-number" class="form-label">カード番号</label>
+                <label for="cc-number" class="form-label">
+                  カード番号 <span class="badge bg-danger ms-2">必須</span>
+                </label>
                 <input type="text"
                        name="card_number"
                        class="form-control {% if form and form.card_number.errors %}is-invalid{% endif %}"
@@ -182,7 +259,7 @@
               <!-- 有効期限 -->
               <div class="col-md-6">
                 <label for="cc-expiration" class="form-label">
-                  有効期限
+                  有効期限 <span class="badge bg-danger ms-2">必須</span>
                   <br>
                   月(MM)/年(YY)
                 </label>
@@ -200,7 +277,7 @@
               <!-- CVV -->
               <div class="col-md-6">
                 <label for="cc-cvv" class="form-label">
-                  セキュリティコード
+                  セキュリティコード <span class="badge bg-danger ms-2">必須</span>
                   <br>
                   (CVV 3-4桁)
                 </label>
@@ -217,7 +294,9 @@
               </div>
               <!-- カード名義人 -->
               <div class="col-md-12">
-                <label for="cc-name" class="form-label">カード名義人</label>
+                <label for="cc-name" class="form-label">
+                  カード名義人 <span class="badge bg-danger ms-2">必須</span>
+                </label>
                 <input type="text"
                        name="card_holder"
                        class="form-control {% if form and form.card_holder.errors %}is-invalid{% endif %}"
@@ -225,7 +304,7 @@
                        placeholder="例：TARO YAMADA"
                        value="{% if form %}{{ form.data.card_holder|default_if_none:'' }}{% endif %}"
                        required>
-                <small class="text-body-secondary">カードに記載されているとおりに入力してください</small>
+                <small class="text-body-secondary">カードに記載されているとおりに入力してください。</small>
                 {% if form and form.card_holder.errors %}
                   <div class="invalid-feedback">{{ form.card_holder.errors|join:", " }}</div>
                 {% endif %}
