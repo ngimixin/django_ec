@@ -39,6 +39,12 @@ class OrderCreateForm(forms.ModelForm):
     - total_amount はカート合計からサーバ側で計算して Order に入れるので、フォームでは扱わない
     """
 
+    # Orderモデルに無い項目は「フォームの追加フィールド」としてここで定義する
+    prefecture = forms.CharField()
+    city = forms.CharField()
+    street = forms.CharField()
+    building = forms.CharField(required=False)
+
     class Meta:
         model = Order
         fields = [
@@ -47,6 +53,7 @@ class OrderCreateForm(forms.ModelForm):
             "phone",
             "email",
             "postal_code",
+            # address はDBに保存する最終結果。ユーザー入力は prefecture/city/street から作る
             "address",
             # --- クレジットカード情報（学習用） ---
             "card_number",
@@ -58,13 +65,15 @@ class OrderCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # 受け取るデータとして必須項目（分割入力を JS で統合した hidden を含む）
+        # 受け取るデータとしての必須項目
         required_fields = [
             "name",
             "phone",
             "email",
             "postal_code",
-            "address",
+            "prefecture",
+            "city",
+            "street",
             "card_number",
             "card_expire",
             "card_cvv",
@@ -76,21 +85,29 @@ class OrderCreateForm(forms.ModelForm):
             "phone": "電話番号は必須です。",
             "email": "メールアドレスは必須です。",
             "postal_code": "郵便番号は必須です。",
-            "address": "住所は必須です。",
+            "prefecture": "都道府県は必須です。",
+            "city": "市区町村は必須です。",
+            "street": "丁目・番地・号は必須です。",
             "card_number": "カード番号は必須です。",
             "card_expire": "有効期限は必須です。",
             "card_cvv": "セキュリティコードは必須です。",
             "card_holder": "カード名義人は必須です。",
         }
 
+        # 必須項目のエラーメッセージの設定
         for field_name in required_fields:
             self.fields[field_name].required = True
             self.fields[field_name].error_messages["required"] = required_messages[
                 field_name
             ]
-            self.fields["email"].error_messages[
-                "invalid"
-            ] = "メールアドレスは半角で入力してください（例：user@example.com）。"
+
+        # address はフォーム入力から組み立てるため、直接入力は不要
+        self.fields["address"].required = False
+
+        # メールアドレスのエラーメッセージの設定
+        self.fields["email"].error_messages[
+            "invalid"
+        ] = "メールアドレスは半角で入力してください（例：example@example.com）。"
 
     def _extract_digits(self, value: str) -> str:
         """
@@ -244,3 +261,25 @@ class OrderCreateForm(forms.ModelForm):
 
         # 学習用のため大文字化（実務ではDBに保存しない）
         return normalized.upper()
+
+    def clean(self):
+        """
+        住所関連フィールドを結合し、address に格納する。
+
+        - prefecture/city/street が揃っている場合に住所を組み立てる。
+        - building は任意（存在する場合のみ追加）
+        """
+        cleaned_data = super().clean()
+
+        prefecture = (cleaned_data.get("prefecture") or "").strip()
+        city = (cleaned_data.get("city") or "").strip()
+        street = (cleaned_data.get("street") or "").strip()
+        building = (cleaned_data.get("building") or "").strip()
+
+        if prefecture and city and street:
+            address = f"{prefecture}{city}{street}"
+            if building:
+                address = f"{address} {building}"
+            cleaned_data["address"] = address
+
+        return cleaned_data
