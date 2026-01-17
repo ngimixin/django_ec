@@ -297,6 +297,11 @@ def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
     return redirect("products:cart_detail")
 
 
+def _send_mail_after_commit(order_id: int) -> None:
+    """注文確認メールを送信する。"""
+    pass
+
+
 @require_POST
 def order_create(request: HttpRequest) -> HttpResponse:
     """
@@ -344,21 +349,27 @@ def order_create(request: HttpRequest) -> HttpResponse:
 
         total_amount = 0
         for ci in cart_items:
-            total_amount += int(ci.product.price) * int(ci.quantity)
+            total_amount += ci.product.price * ci.quantity
 
         order.total_amount = total_amount
         order.save()
 
+        # OrderItemをまとめてINSERTしてDB往復回数を減らす
+        order_items: list[OrderItem] = []
         for ci in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=ci.product,
-                product_name=ci.product.name,
-                price=ci.product.price,  # 購入時点の単価
-                quantity=ci.quantity,
+            order_items.append(
+                OrderItem(
+                    order=order,
+                    product=ci.product,
+                    product_name=ci.product.name, # 注文時点の商品名
+                    price=ci.product.price,  # 注文時点の単価
+                    quantity=ci.quantity,
+                )
             )
-
+        OrderItem.objects.bulk_create(order_items)
+        
         cart.delete()
+        transaction.on_commit(lambda: _send_mail_after_commit(order.id))
 
     assert order is not None
     request.session["last_order_id"] = order.id
