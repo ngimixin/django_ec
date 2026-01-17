@@ -373,7 +373,7 @@ def order_create(request: HttpRequest) -> HttpResponse:
 
     assert order is not None
     request.session["last_order_id"] = order.id
-    messages.success(request, "注文確認メールを送信しました。")
+    messages.success(request, "注文完了メールを送信しました。")
     return redirect("products:order_complete")
 
 def order_complete(request: HttpRequest) -> HttpResponse:
