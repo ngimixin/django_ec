@@ -49,11 +49,8 @@ class Order(models.Model):
     name = models.CharField(max_length=100, verbose_name="注文者名")
 
     # 電話番号は先頭0・+81・ハイフンなどがあり得るため、数値ではなく文字列で保持する
-    # 後から追加したカラムのため、既存レコード対応として NULL/blank を許可
     phone = models.CharField(
         max_length=20,
-        null=True,
-        blank=True,
         verbose_name="注文者電話番号",
         help_text="配送時にご連絡させていただく事があります",
     )
@@ -61,12 +58,9 @@ class Order(models.Model):
     email = models.EmailField(verbose_name="注文者メールアドレス")
 
     # 日本の郵便番号は先頭0があり得る＆ハイフン入力にも対応したいので CharField
-    # 後から追加したカラムのため、既存レコード対応として NULL/blank を許可
     postal_code = models.CharField(
         max_length=8,  # "123-4567" まで想定して8
         verbose_name="配送先郵便番号",
-        null=True,
-        blank=True,
     )
 
     # 日本国内向けフォームに寄せるが、DBは1カラムで保持する方針
@@ -75,33 +69,24 @@ class Order(models.Model):
     total_amount = models.PositiveIntegerField(verbose_name="合計金額")
 
     # チェックアウト時のクレジットカード情報（学習用）
-    # 後から追加したカラムのため、既存レコード対応として NULL/blank を許可
-    # ※ 実サービスではDBに保存しない
+    # ※ 実サービスではDBに保存しないが、本課題では理解のため保持する
     card_number = models.CharField(
         max_length=20,
-        null=True,
-        blank=True,
         verbose_name="カード番号",
     )
 
     card_expire = models.CharField(
         max_length=5,
-        null=True,
-        blank=True,
         verbose_name="有効期限（MM/YY）",
     )
 
     card_cvv = models.CharField(
         max_length=4,
-        null=True,
-        blank=True,
         verbose_name="セキュリティコード",
     )
 
     card_holder = models.CharField(
         max_length=100,
-        null=True,
-        blank=True,
         verbose_name="カード名義人",
     )
 
@@ -130,6 +115,7 @@ class OrderItem(models.Model):
         Order, on_delete=models.CASCADE, related_name="items", verbose_name="注文"
     )
     product = models.ForeignKey(Product, on_delete=models.RESTRICT, verbose_name="商品")
+    product_name = models.CharField(max_length=255, verbose_name="商品名")
     price = models.PositiveIntegerField(verbose_name="単価")
     quantity = models.PositiveIntegerField(verbose_name="数量")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")

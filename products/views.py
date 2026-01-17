@@ -353,6 +353,7 @@ def order_create(request: HttpRequest) -> HttpResponse:
             OrderItem.objects.create(
                 order=order,
                 product=ci.product,
+                product_name=ci.product.name,
                 price=ci.product.price,  # 購入時点の単価
                 quantity=ci.quantity,
             )
