@@ -46,25 +46,18 @@ DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders (
   id           BIGSERIAL PRIMARY KEY,
   name         VARCHAR(100) NOT NULL,           -- 購入者氏名
-  
--- 後から追加したカラムのため、既存レコード対応として NULL 許可
-  phone        VARCHAR(20) NULL,                -- 購入者電話番号
-
+  phone        VARCHAR(20) NOT NULL,            -- 購入者電話番号
   email        VARCHAR NOT NULL,                -- 購入者メール
-
--- 後から追加したカラムのため、既存レコード対応として NULL 許可
-  postal_code  VARCHAR(8) NULL,                 -- 配送先郵便番号
-  
+  postal_code  VARCHAR(8) NOT NULL,             -- 配送先郵便番号
   address      TEXT NOT NULL,                   -- 配送先住所
   total_amount INTEGER NOT NULL,                -- 合計金額（円）
 
 -- チェックアウト時のクレジットカード情報（学習用）
--- 後から追加したカラムのため、既存レコード対応として NULL 許可
--- ※ 実サービスではDBに保存しない
-  card_number  VARCHAR(20) NULL,                -- カード番号
-  card_expire  VARCHAR(7) NULL,                 -- 有効期限（MM/YY）
-  card_cvv     VARCHAR(4) NULL,                 -- セキュリティコード
-  card_holder  VARCHAR(100) NULL,               -- カード名義人
+-- ※ 実サービスではDBに保存しないが、本課題では理解のため保持する
+  card_number  VARCHAR(20) NOT NULL,            -- カード番号
+  card_expire  VARCHAR(7) NOT NULL,             -- 有効期限（MM/YY）
+  card_cvv     VARCHAR(4) NOT NULL,             -- セキュリティコード
+  card_holder  VARCHAR(100) NOT NULL,           -- カード名義人
 
   status       VARCHAR(20) NOT NULL DEFAULT 'pending',   -- 'pending' | 'paid' | 'shipped' など想定
   created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -77,7 +70,8 @@ CREATE TABLE order_items (
   id          BIGSERIAL PRIMARY KEY,
   order_id    BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   product_id  BIGINT NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
-  price       INTEGER NOT NULL,                     -- 注文時点の単価（円）
+  product_name VARCHAR(255) NOT NULL,           -- 注文時点の商品名
+  price       INTEGER NOT NULL,                 -- 注文時点の単価（円）
   quantity    INTEGER NOT NULL CHECK (quantity > 0),
   created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
