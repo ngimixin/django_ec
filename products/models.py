@@ -1,4 +1,3 @@
-from tabnanny import verbose
 from django.db import models
 
 
@@ -15,7 +14,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -26,7 +25,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Cart(session_key={self.session_key})"
 
 
@@ -42,7 +41,7 @@ class CartItem(models.Model):
     class Meta:
         unique_together = ("cart", "product")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.product} x {self.quantity}"
 
 
@@ -122,7 +121,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Order #{self.id} ({self.name})"
 
 
@@ -136,5 +135,10 @@ class OrderItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"OrderItem(order_id={self.order_id}, product={self.product})"
+
+    @property
+    def total_price(self) -> int:
+        """小計（単価 × 数量）を返す"""
+        return self.price * self.quantity

@@ -61,7 +61,7 @@ def manage_product_list(request: HttpRequest) -> HttpResponse:
     context = {
         "products": products,
     }
-    return render(request, "products/manage_product_list.html", context)
+    return render(request, "manage/products/product_list.html", context)
 
 
 @auth
@@ -84,7 +84,7 @@ def manage_product_create(request: HttpRequest) -> HttpResponse:
     context = {
         "form": form,
     }
-    return render(request, "products/manage_product_create.html", context)
+    return render(request, "manage/products/product_create.html", context)
 
 
 @auth
@@ -119,7 +119,7 @@ def manage_product_edit(request: HttpRequest, pk: int) -> HttpResponse:
         "product": product,
     }
 
-    return render(request, "products/manage_product_edit.html", context)
+    return render(request, "manage/products/product_edit.html", context)
 
 
 @auth
@@ -140,7 +140,7 @@ def manage_product_delete(request: HttpRequest, pk: int) -> HttpResponse:
     context = {
         "product": product,
     }
-    return render(request, "products/manage_product_delete.html", context)
+    return render(request, "manage/products/product_delete.html", context)
 
 
 def cart_detail(request: HttpRequest) -> HttpResponse:
@@ -182,7 +182,7 @@ def cart_detail(request: HttpRequest) -> HttpResponse:
         "total_quantity": total_quantity,
         "item_quantity_ranges": item_quantity_ranges,
     }
-    return render(request, "products/cart_detail.html", context)
+    return render(request, "cart/cart_detail.html", context)
 
 
 @require_POST
@@ -263,7 +263,7 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     }
 
     html = render_to_string(
-        "products/_cart_summary.html",
+        "cart/_cart_summary.html",
         {
             "items": items,
             "cart_total": cart_total,
@@ -335,10 +335,12 @@ def order_create(request: HttpRequest) -> HttpResponse:
             "item_quantity_ranges": item_quantity_ranges,
             "form": form,
         }
-        return render(request, "products/cart_detail.html", context)
+        return render(request, "cart/cart_detail.html", context)
+    
+    order: Order | None = None
 
     with transaction.atomic():
-        order: Order = form.save(commit=False)
+        order = form.save(commit=False)
 
         total_amount = 0
         for ci in cart_items:
@@ -357,5 +359,27 @@ def order_create(request: HttpRequest) -> HttpResponse:
 
         cart.delete()
 
-    messages.success(request, "購入ありがとうございます。")
-    return redirect("products:product_list")
+    assert order is not None
+    request.session["last_order_id"] = order.id
+    messages.success(request, "注文確認メールを送信しました。")
+    return redirect("products:order_complete")
+
+def order_complete(request: HttpRequest) -> HttpResponse:
+    """
+    注文完了ページを表示するビュー。
+    """
+    order_id = request.session.get("last_order_id")
+    if not order_id:
+        return redirect("products:product_list")
+
+    order = get_object_or_404(Order, id=order_id)
+    request.session.pop("last_order_id", None)
+
+    return render(
+        request,
+        "orders/order_complete.html",
+        {
+            "order": order,
+            "items": order.items.all(),
+        }
+    )
