@@ -14,5 +14,5 @@
 【合計】{{ order.total_amount|intcomma }}円
 
 配送先：
-〒{{ order.postal_code }}
+〒{{ order.postal_code|slice:":3" }}-{{ order.postal_code|slice:"3:" }}
 {{ order.address }}
