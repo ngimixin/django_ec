@@ -1,16 +1,21 @@
+import logging
+
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.contrib import messages
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.db import transaction
-
+from django.core.mail import send_mail
+from django.conf import settings
 from products.services.cart import get_or_create_cart
 
 from .models import Product, Cart, CartItem, Order, OrderItem
 from config.decorators import basic_auth_required as auth
 from .forms import ProductForm, OrderCreateForm
 from .utils import get_quantity_range
+
+logger = logging.getLogger(__name__)
 
 
 def product_list(request: HttpRequest) -> HttpResponse:
@@ -299,7 +304,32 @@ def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
 
 def _send_mail_after_commit(order_id: int) -> None:
     """注文確認メールを送信する。"""
-    pass
+    try:
+        order = (
+            Order.objects
+            .prefetch_related("items")
+            .get(pk=order_id)
+        )
+
+        subject = f"ご購入明細（注文番号：{order.id}）"
+        message = render_to_string(
+            "orders/emails/order_confirmation.txt",
+            {
+                "order": order,
+                "items": order.items.all(),
+            },
+        )
+
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[order.email],
+            fail_silently=False,
+        )
+    except Exception:
+        # 注文自体は確定済みなので、メール失敗で注文フローを壊さない（ログだけ残す）
+        logger.exception("Failed to send order confirmation email (order_id=%s)", order_id)
 
 
 @require_POST
@@ -367,9 +397,10 @@ def order_create(request: HttpRequest) -> HttpResponse:
                 )
             )
         OrderItem.objects.bulk_create(order_items)
-        
         cart.delete()
-        transaction.on_commit(lambda: _send_mail_after_commit(order.id))
+        
+        order_id = order.id
+        transaction.on_commit(lambda: _send_mail_after_commit(order_id))
 
     assert order is not None
     request.session["last_order_id"] = order.id
