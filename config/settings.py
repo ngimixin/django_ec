@@ -138,6 +138,31 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SITE_TITLE = "VELO STATION"
 COPYRIGHT_YEAR = 2025
 
+
+# ==============================
 # Email settings
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@velo-station.local")
+# Heroku (SendGrid / Mailgun) 対応
+# ==============================
+
+# 送信元メールアドレス
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL",
+    default="no-reply@velo-station.local",
+)
+
+# SMTP設定（HerokuのConfig Varsから読む）
+EMAIL_HOST = env("EMAIL_HOST", default=None)
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default=None)
+
+# TLS / SSL（SendGrid・MailgunはTLSが一般的）
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+
+# SMTP情報が揃っていれば本物のメール送信
+# 揃っていなければローカル用にコンソール出力
+if EMAIL_HOST and EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
