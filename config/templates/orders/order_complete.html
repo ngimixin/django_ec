@@ -34,7 +34,7 @@
         {% for item in items %}
           <li class="list-group-item d-flex justify-content-between">
             <div>
-              {{ item.product.name }}
+              {{ item.product_name }}
               <br>
               <small class="text-muted">¥{{ item.price|intcomma }} × {{ item.quantity }}</small>
             </div>

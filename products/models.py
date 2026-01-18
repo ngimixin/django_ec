@@ -114,7 +114,14 @@ class OrderItem(models.Model):
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name="items", verbose_name="注文"
     )
-    product = models.ForeignKey(Product, on_delete=models.RESTRICT, verbose_name="商品")
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="商品",
+        help_text="商品が削除された場合は NULL にする",
+    )
     product_name = models.CharField(max_length=255, verbose_name="商品名")
     price = models.PositiveIntegerField(verbose_name="単価")
     quantity = models.PositiveIntegerField(verbose_name="数量")
