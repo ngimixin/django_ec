@@ -10,6 +10,8 @@ SECRET_KEYは自身で生成する
 ```.env
 DATABASE_URL="postgres://postgres:postgres@db:5432/django_develop"
 SECRET_KEY=<自身で生成したものを使う>
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 ```
 
 ## dockerを立ち上げる
