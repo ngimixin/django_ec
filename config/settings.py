@@ -128,8 +128,12 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
-# Media files (Images, Videos, etc.)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/#media-files
+# ==============================
+# Media files（ユーザーアップロード）
+# ==============================
+# ローカル開発・学習用途ではローカル保存で問題ない。
+# Heroku 本番環境ではファイルシステムが永続化されないため、
+# 実運用では S3 などの外部ストレージを利用する想定。
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
