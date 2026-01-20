@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "cloudinary",
+    "cloudinary_storage",
     "products",
 ]
 
@@ -131,13 +133,14 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # ==============================
-# Media files（ユーザーアップロード）
+# Media files（開発はローカル / 本番はCloudinary）
 # ==============================
-# ローカル開発・学習用途ではローカル保存で問題ない。
-# Heroku 本番環境ではファイルシステムが永続化されないため、
-# 実運用では S3 などの外部ストレージを利用する想定。
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# 本番（DEBUG=False）のみ Cloudinary を使用
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
