@@ -3,7 +3,6 @@
 """
 
 import base64
-import os
 from functools import wraps
 from django.http import HttpRequest, HttpResponse
 
@@ -11,29 +10,15 @@ def basic_auth_required(view_func):
     """
     Basic認証を要求するデコレータ。
 
-    認証情報は環境変数から取得します（ソースに直書きしない）。
-    - BASIC_AUTH_USER
-    - BASIC_AUTH_PASSWORD   
+    認証情報は以下に固定する。
+    - user: admin
+    - password: pw
     """
 
     @wraps(view_func)
     def _wrapped_view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        # 認証情報は毎回環境変数から取得（import時に固定しない）
-        basic_user = os.environ.get("BASIC_AUTH_USER")
-        basic_password = os.environ.get("BASIC_AUTH_PASSWORD")
-
-        # 環境変数が未設定なら、意図せず無防備にならないよう必ず401で弾く
-        if not basic_user or not basic_password:
-            response = HttpResponse(
-                "Basic認証が未設定です（環境変数を設定してください）",
-                status=401,
-                content_type="text/plain; charset=utf-8",
-            )
-            response["WWW-Authenticate"] = 'Basic realm="ProductManagement"'
-            response["Cache-Control"] = "no-cache, no-store, must-revalidate"
-            response["Pragma"] = "no-cache"
-            response["Expires"] = "0"
-            return response
+        basic_user = "admin"
+        basic_password = "pw"
 
         # Authorizationヘッダーを取得
         auth_header = request.META.get("HTTP_AUTHORIZATION", "")

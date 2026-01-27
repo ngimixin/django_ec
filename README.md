@@ -12,10 +12,6 @@ DATABASE_URL="postgres://postgres:postgres@db:5432/django_develop"
 SECRET_KEY=<自身で生成したものを使う>
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
-
-# 管理者向け画面用（Basic認証）
-BASIC_AUTH_USER=admin
-BASIC_AUTH_PASSWORD=pw
 ```
 
 ## dockerを立ち上げる
