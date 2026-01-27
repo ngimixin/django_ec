@@ -173,6 +173,13 @@ h5 a:hover {
   transition: none !important;
 }
 
+/* 商品管理の画像プレビューを固定サイズにする */
+.manage-product-image-preview {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
 /* すべてのボタンのホバー遅延を無効化 */
 .btn {
   transition: none !important;
