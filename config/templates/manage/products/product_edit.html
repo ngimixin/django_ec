@@ -4,7 +4,7 @@
   {{ SITE_TITLE }} | 商品管理：編集（{{ product.name }}）
 {% endblock title %}
 {% block content %}
-  <div class="container py-4">
+  <div class="container px-4 px-lg-5 py-4">
     <h1 class="mb-4">商品管理：編集（{{ product.name }}）</h1>
     <!-- エラーがあれば上部にまとめて表示 -->
     {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
