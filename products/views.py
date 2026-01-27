@@ -148,6 +148,34 @@ def manage_product_delete(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "manage/products/product_delete.html", context)
 
 
+@auth
+def manage_order_list(request: HttpRequest) -> HttpResponse:
+    """
+    購入明細一覧を表示するビュー（管理者向け）。
+    """
+    orders = Order.objects.order_by("-created_at")
+    context = {
+        "orders": orders,
+    }
+    return render(request, "manage/orders/order_list.html", context)
+
+
+@auth
+def manage_order_detail(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    購入明細詳細を表示するビュー（管理者向け）。
+    """
+    order = get_object_or_404(
+        Order.objects.prefetch_related("items"),
+        pk=pk,
+    )
+    context = {
+        "order": order,
+        "items": order.items.all(),
+    }
+    return render(request, "manage/orders/order_detail.html", context)
+
+
 def cart_detail(request: HttpRequest) -> HttpResponse:
     """
     カートの中身を表示するビュー。
