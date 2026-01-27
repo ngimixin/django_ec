@@ -10,7 +10,7 @@ def basic_auth_required(view_func):
     """
     Basic認証を要求するデコレータ。
 
-    認証情報は以下に固定する。
+    認証情報は以下に固定する。（学習用）
     - user: admin
     - password: pw
     """
