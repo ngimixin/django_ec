@@ -1,4 +1,9 @@
 /* 商品詳細ページのメイン画像を6:7比率で表示する */
+/* ページ間の横ズレ防止：スクロールバー幅を常に確保 */
+html {
+  overflow-y: scroll;
+}
+
 .product-image-wrapper {
   width: 100%;
   aspect-ratio: 6 / 7;
