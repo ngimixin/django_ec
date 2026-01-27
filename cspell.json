@@ -3,6 +3,7 @@
   "words": [
     "csrfmiddlewaretoken",
     "endfor",
+    "enctype",
     "inputmode",
     "intcomma",
     "maxlength",
