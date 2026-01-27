@@ -148,7 +148,7 @@ if not DEBUG:
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SITE_TITLE = "VELO STATION"
-COPYRIGHT_YEAR = 2025
+COPYRIGHT_YEAR = 2026
 
 
 # ==============================

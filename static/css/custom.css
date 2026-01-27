@@ -167,3 +167,8 @@ h5 a:hover {
 .manage-product-list .btn-outline-danger {
   transition: none !important;
 }
+
+/* すべてのボタンのホバー遅延を無効化 */
+.btn {
+  transition: none !important;
+}
