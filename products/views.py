@@ -333,11 +333,7 @@ def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
 def _send_mail_after_commit(order_id: int) -> None:
     """注文確認メールを送信する。"""
     try:
-        order = (
-            Order.objects
-            .prefetch_related("items")
-            .get(pk=order_id)
-        )
+        order = Order.objects.prefetch_related("items").get(pk=order_id)
 
         subject = f"ご購入明細（注文番号：{order.id}）"
         message = render_to_string(
@@ -357,7 +353,9 @@ def _send_mail_after_commit(order_id: int) -> None:
         )
     except Exception:
         # 注文自体は確定済みなので、メール失敗で注文フローを壊さない（ログだけ残す）
-        logger.exception("Failed to send order confirmation email (order_id=%s)", order_id)
+        logger.exception(
+            "Failed to send order confirmation email (order_id=%s)", order_id
+        )
 
 
 @require_POST
@@ -399,7 +397,7 @@ def order_create(request: HttpRequest) -> HttpResponse:
             "form": form,
         }
         return render(request, "cart/cart_detail.html", context)
-    
+
     order: Order | None = None
 
     with transaction.atomic():
@@ -419,14 +417,14 @@ def order_create(request: HttpRequest) -> HttpResponse:
                 OrderItem(
                     order=order,
                     product=ci.product,
-                    product_name=ci.product.name, # 注文時点の商品名
+                    product_name=ci.product.name,  # 注文時点の商品名
                     price=ci.product.price,  # 注文時点の単価
                     quantity=ci.quantity,
                 )
             )
         OrderItem.objects.bulk_create(order_items)
         cart.delete()
-        
+
         order_id = order.id
         transaction.on_commit(lambda: _send_mail_after_commit(order_id))
 
@@ -434,6 +432,7 @@ def order_create(request: HttpRequest) -> HttpResponse:
     request.session["last_order_id"] = order.id
     messages.success(request, "注文完了メールを送信しました。")
     return redirect("products:order_complete")
+
 
 def order_complete(request: HttpRequest) -> HttpResponse:
     """
@@ -452,5 +451,5 @@ def order_complete(request: HttpRequest) -> HttpResponse:
         {
             "order": order,
             "items": order.items.all(),
-        }
+        },
     )

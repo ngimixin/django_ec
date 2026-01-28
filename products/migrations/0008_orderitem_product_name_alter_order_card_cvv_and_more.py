@@ -6,44 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0007_alter_order_card_expire'),
+        ("products", "0007_alter_order_card_expire"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='orderitem',
-            name='product_name',
-            field=models.CharField(default='', max_length=255, verbose_name='商品名'),
+            model_name="orderitem",
+            name="product_name",
+            field=models.CharField(default="", max_length=255, verbose_name="商品名"),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='order',
-            name='card_cvv',
-            field=models.CharField(max_length=4, verbose_name='セキュリティコード'),
+            model_name="order",
+            name="card_cvv",
+            field=models.CharField(max_length=4, verbose_name="セキュリティコード"),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='card_expire',
-            field=models.CharField(max_length=5, verbose_name='有効期限（MM/YY）'),
+            model_name="order",
+            name="card_expire",
+            field=models.CharField(max_length=5, verbose_name="有効期限（MM/YY）"),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='card_holder',
-            field=models.CharField(max_length=100, verbose_name='カード名義人'),
+            model_name="order",
+            name="card_holder",
+            field=models.CharField(max_length=100, verbose_name="カード名義人"),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='card_number',
-            field=models.CharField(max_length=20, verbose_name='カード番号'),
+            model_name="order",
+            name="card_number",
+            field=models.CharField(max_length=20, verbose_name="カード番号"),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='phone',
-            field=models.CharField(help_text='配送時にご連絡させていただく事があります', max_length=20, verbose_name='注文者電話番号'),
+            model_name="order",
+            name="phone",
+            field=models.CharField(
+                help_text="配送時にご連絡させていただく事があります",
+                max_length=20,
+                verbose_name="注文者電話番号",
+            ),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='postal_code',
-            field=models.CharField(max_length=8, verbose_name='配送先郵便番号'),
+            model_name="order",
+            name="postal_code",
+            field=models.CharField(max_length=8, verbose_name="配送先郵便番号"),
         ),
     ]

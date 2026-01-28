@@ -7,13 +7,20 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0008_orderitem_product_name_alter_order_card_cvv_and_more'),
+        ("products", "0008_orderitem_product_name_alter_order_card_cvv_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='orderitem',
-            name='product',
-            field=models.ForeignKey(blank=True, help_text='商品が削除された場合は NULL にする', null=True, on_delete=django.db.models.deletion.SET_NULL, to='products.product', verbose_name='商品'),
+            model_name="orderitem",
+            name="product",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="商品が削除された場合は NULL にする",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="products.product",
+                verbose_name="商品",
+            ),
         ),
     ]

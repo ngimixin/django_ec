@@ -171,7 +171,7 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
 EMAIL_HOST_PASSWORD = env(
     "EMAIL_HOST_PASSWORD",
     default=env("SENDGRID_API_KEY", default=None),
-    )
+)
 
 # TLS / SSL（SendGrid・MailgunはTLSが一般的）
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
