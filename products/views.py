@@ -401,27 +401,55 @@ def order_create(request: HttpRequest) -> HttpResponse:
     order: Order | None = None
 
     with transaction.atomic():
+        items = list(cart_items)
+        product_ids = [item.product_id for item in items]
+        locked_products = Product.objects.select_for_update().in_bulk(product_ids)
+
+        for item in items:
+            product = locked_products.get(item.product_id)
+            if product is None:
+                messages.error(
+                    request,
+                    f"商品が存在しないため購入できません。（{item.product.name}）",
+                )
+                return redirect("products:cart_detail")
+            
+            if product.stock < item.quantity:
+                messages.error(
+                    request,
+                    f"在庫が不足しているため購入できません。（{product.name}）",
+                )
+                return redirect("products:cart_detail")
+
+        # 在庫を更新
+        for item in items:
+            product = locked_products[item.product_id]
+            product.stock -= item.quantity
+            product.save(update_fields=["stock"])
+
+        # 注文を作成
         order = form.save(commit=False)
 
         total_amount = 0
-        for ci in cart_items:
-            total_amount += ci.product.price * ci.quantity
+        # OrderItemをまとめてINSERTしてDB往復回数を減らす
+        order_items: list[OrderItem] = []
+
+        for item in items:
+            product = locked_products[item.product_id]
+            total_amount += product.price * item.quantity
+            order_items.append(
+                OrderItem(
+                    order=order,
+                    product=product,
+                    product_name=product.name,  # 注文時点の商品名
+                    price=product.price,  # 注文時点の単価
+                    quantity=item.quantity,
+                )
+            )
 
         order.total_amount = total_amount
         order.save()
 
-        # OrderItemをまとめてINSERTしてDB往復回数を減らす
-        order_items: list[OrderItem] = []
-        for ci in cart_items:
-            order_items.append(
-                OrderItem(
-                    order=order,
-                    product=ci.product,
-                    product_name=ci.product.name,  # 注文時点の商品名
-                    price=ci.product.price,  # 注文時点の単価
-                    quantity=ci.quantity,
-                )
-            )
         OrderItem.objects.bulk_create(order_items)
         cart.delete()
 
