@@ -1,18 +1,21 @@
 {
   "version": "0.2",
   "words": [
+    "cpath",
     "csrfmiddlewaretoken",
-    "endfor",
+    "csvg",
     "enctype",
+    "endfor",
+    "gunicorn",
     "inputmode",
     "intcomma",
+    "linebreaksbr",
     "localtime",
     "maxlength",
-    "nowrap",
     "novalidate",
-    "gunicorn",
-    "whitenoise",
+    "nowrap",
     "psycopg",
-    "TANAKA"
+    "TANAKA",
+    "whitenoise"
   ]
 }
