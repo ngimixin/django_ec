@@ -6,6 +6,7 @@ import base64
 from functools import wraps
 from django.http import HttpRequest, HttpResponse
 
+
 def basic_auth_required(view_func):
     """
     Basic認証を要求するデコレータ。
