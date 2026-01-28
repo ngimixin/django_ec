@@ -335,7 +335,7 @@ def _send_mail_after_commit(order_id: int) -> None:
     try:
         order = Order.objects.prefetch_related("items").get(pk=order_id)
 
-        subject = f"ご購入明細（注文番号：{order.id}）"
+        subject = f"【VELO STATION】ご購入明細（注文番号：{order.id}）"
         message = render_to_string(
             "orders/emails/order_confirmation.txt",
             {
