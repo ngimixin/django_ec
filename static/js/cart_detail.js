@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const csrfToken = document.querySelector(
-    'input[name="csrfmiddlewaretoken"]'
+    'input[name="csrfmiddlewaretoken"]',
   )?.value;
   if (!csrfToken) {
     return;
@@ -70,7 +70,73 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ② 郵便番号入力フォームに自動補完機能を追加
+// ② 右ペイン：削除ボタンを fetch 化
+document.addEventListener("DOMContentLoaded", () => {
+  const summary = document.getElementById("cart-summary");
+  if (!summary) {
+    return;
+  }
+
+  const csrfToken = document.querySelector(
+    'input[name="csrfmiddlewaretoken"]',
+  )?.value;
+  if (!csrfToken) {
+    return;
+  }
+
+  summary.addEventListener("submit", async (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLFormElement)) {
+      return;
+    }
+
+    if (!target.classList.contains("cart-item-delete-form")) {
+      return;
+    }
+
+    const url = target.getAttribute("action");
+    if (!url) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append("csrfmiddlewaretoken", csrfToken);
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      if (!res.ok) {
+        window.location.reload();
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.ok || !data.html) {
+        window.location.reload();
+        return;
+      }
+
+      summary.innerHTML = data.html;
+
+      const cartBadge = document.getElementById("cart-badge");
+      if (cartBadge && typeof data.total_quantity !== "undefined") {
+        cartBadge.textContent = data.total_quantity;
+      }
+    } catch (e) {
+      window.location.reload();
+    }
+  });
+});
+
+// ③ 郵便番号入力フォームに自動補完機能を追加
 document.addEventListener("DOMContentLoaded", () => {
   const zipInput = document.getElementById("id_postal_code");
   if (!zipInput) {
@@ -102,7 +168,7 @@ async function autofillByZip(zip) {
 
   try {
     const url = `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${encodeURIComponent(
-      zip
+      zip,
     )}`;
     const res = await fetch(url);
     if (!res.ok) {
