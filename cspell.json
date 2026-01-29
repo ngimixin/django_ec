@@ -6,6 +6,7 @@
     "csvg",
     "enctype",
     "endfor",
+    "endwith",
     "gunicorn",
     "inputmode",
     "intcomma",
@@ -15,6 +16,7 @@
     "novalidate",
     "nowrap",
     "psycopg",
+    "REFERER",
     "TANAKA",
     "whitenoise"
   ]

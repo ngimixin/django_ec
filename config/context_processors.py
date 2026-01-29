@@ -28,5 +28,10 @@ def cart_badge(request: HttpRequest) -> dict[str, int]:
     if cart is None:
         return {"cart_total_quantity": 0}
 
-    total_quantity = cart.items.aggregate(total=Sum("quantity")).get("total") or 0
+    total_quantity = (
+        cart.items.filter(product__stock__gt=0)
+        .aggregate(total=Sum("quantity"))
+        .get("total")
+        or 0
+    )
     return {"cart_total_quantity": total_quantity}
