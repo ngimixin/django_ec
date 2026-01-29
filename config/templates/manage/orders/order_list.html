@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load humanize tz %}
+{% block title %}
+  {{ SITE_TITLE }} | 購入明細：一覧
+{% endblock title %}
+{% block content %}
+  <div class="container px-4 px-lg-5 py-4 manage-order-list">
+    <h1 class="mb-4">購入明細：一覧</h1>
+    {% if orders %}
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>注文ID</th>
+              <th>注文日時</th>
+              <th>購入者</th>
+              <th>メール</th>
+              <th>合計金額</th>
+              <th>ステータス</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.created_at|localtime|date:"Y-m-d H:i" }}</td>
+                <td>{{ order.name }}</td>
+                <td>{{ order.email }}</td>
+                <td>¥{{ order.total_amount|intcomma }}</td>
+                <td>{{ order.get_status_display }}</td>
+                <td>
+                  <a href="{% url 'products:manage_order_detail' order.pk %}"
+                     class="btn btn-sm btn-outline-secondary">詳細</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>購入明細はまだありません。</p>
+    {% endif %}
+  </div>
+{% endblock content %}

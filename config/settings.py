@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import environ
+from django.contrib.messages import constants as messages
 
 from pathlib import Path
 
@@ -27,9 +28,10 @@ environ.Env.read_env(env_file=str(BASE_DIR) + "/.env")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 
 # Application definition
@@ -42,11 +44,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "cloudinary",
+    "cloudinary_storage",
     "products",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -124,11 +129,19 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Media files (Images, Videos, etc.)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/#media-files
+
+# ==============================
+# Media files（開発はローカル / 本番はCloudinary）
+# ==============================
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# 本番（DEBUG=False）のみ Cloudinary を使用
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -136,4 +149,42 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SITE_TITLE = "VELO STATION"
-COPYRIGHT_YEAR = 2025
+COPYRIGHT_YEAR = 2026
+
+MESSAGE_TAGS = {
+    messages.ERROR: "danger",
+}
+
+
+# ==============================
+# Email settings
+# Heroku (SendGrid / Mailgun) 対応
+# ==============================
+
+# 送信元メールアドレス
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL",
+    default="no-reply@velo-station.local",
+)
+
+# SMTP設定（HerokuのConfig Varsから読む）
+EMAIL_HOST = env("EMAIL_HOST", default=None)
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
+
+# SendGridは「SMTPパスワード = APIキー」なので、EMAIL_HOST_PASSWORDが無ければSENDGRID_API_KEYを使う
+EMAIL_HOST_PASSWORD = env(
+    "EMAIL_HOST_PASSWORD",
+    default=env("SENDGRID_API_KEY", default=None),
+)
+
+# TLS / SSL（SendGrid・MailgunはTLSが一般的）
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+
+# SMTP情報が揃っていれば本物のメール送信
+# 揃っていなければローカル用にコンソール出力
+if EMAIL_HOST and EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

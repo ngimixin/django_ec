@@ -1,0 +1,24 @@
+{
+  "version": "0.2",
+  "words": [
+    "cpath",
+    "csrfmiddlewaretoken",
+    "csvg",
+    "enctype",
+    "endautoescape",
+    "endfor",
+    "endwith",
+    "gunicorn",
+    "inputmode",
+    "intcomma",
+    "linebreaksbr",
+    "localtime",
+    "maxlength",
+    "novalidate",
+    "nowrap",
+    "psycopg",
+    "REFERER",
+    "TANAKA",
+    "whitenoise"
+  ]
+}

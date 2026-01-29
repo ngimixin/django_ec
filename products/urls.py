@@ -24,9 +24,18 @@ urlpatterns = [
         views.manage_product_delete,
         name="manage_product_delete",
     ),
+    path("manage/orders/", views.manage_order_list, name="manage_order_list"),
+    path(
+        "manage/orders/<int:pk>/",
+        views.manage_order_detail,
+        name="manage_order_detail",
+    ),
     # --- カート関連 ---
     path("cart/", views.cart_detail, name="cart_detail"),
     path("cart/add/<int:product_id>/", views.add_to_cart, name="add_to_cart"),
     path("cart/update/<int:item_id>/", views.cart_item_update, name="cart_item_update"),
     path("cart/delete/<int:item_id>/", views.cart_item_delete, name="cart_item_delete"),
+    # --- 注文関連 ---
+    path("order/create/", views.order_create, name="order_create"),
+    path("order/complete/", views.order_complete, name="order_complete"),
 ]
