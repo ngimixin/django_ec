@@ -30,7 +30,7 @@
                 </select>
               </form>
             {% else %}
-              <small class="text-body-secondary d-block">数量: {{ item.quantity }}</small>
+              <small class="text-danger d-block">在庫切れのため削除してください</small>
             {% endif %}
           {% endwith %}
         </div>
@@ -38,9 +38,12 @@
           <!-- 1つあたりの価格 -->
           <span class="text-body-secondary">¥{{ item.product.price|intcomma }}</span>
           <!-- 削除ボタン（POST専用） -->
-          <form method="post" action="{% url 'products:cart_item_delete' item.id %}">
+          <form method="post"
+                action="{% url 'products:cart_item_delete' item.id %}"
+                class="cart-item-delete-form">
             {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap">
+            <button type="submit"
+                    class="btn btn-sm text-nowrap {% if item.product.stock <= 0 %}btn-danger{% else %}btn-outline-danger{% endif %}">
               <i class="bi bi-trash"></i>
               削除
             </button>

@@ -200,8 +200,11 @@ def cart_detail(request: HttpRequest) -> HttpResponse:
                 .order_by("created_at")
             )
 
-            cart_total = sum(item.product.price * item.quantity for item in items)
-            total_quantity = sum(item.quantity for item in items)
+            available_items = [item for item in items if item.product.stock > 0]
+            cart_total = sum(
+                item.product.price * item.quantity for item in available_items
+            )
+            total_quantity = sum(item.quantity for item in available_items)
 
             # 各商品の在庫数に基づいた数量選択肢を生成
             item_quantity_ranges = {}
@@ -240,14 +243,32 @@ def add_to_cart(request: HttpRequest, product_id: int) -> HttpResponse:
     if quantity <= 0:
         quantity = 1
 
-    # すでに同じ商品がカートに入っていたら数量だけ増やす
-    item, created = CartItem.objects.get_or_create(
-        cart=cart, product=product, defaults={"quantity": quantity}
-    )
+    redirect_url = request.META.get("HTTP_REFERER")
+    if product.stock <= 0:
+        messages.error(
+            request,
+            f"在庫切れのためカートに追加できません。（{product.name}）",
+        )
+        if redirect_url:
+            return redirect(redirect_url)
+        return redirect("products:product_list")
 
-    if not created:
-        item.quantity += quantity
-        item.save()
+    existing_item = CartItem.objects.filter(cart=cart, product=product).first()
+    existing_quantity = existing_item.quantity if existing_item else 0
+    if existing_quantity + quantity > product.stock:
+        messages.error(
+            request,
+            f"在庫数を超えるためカートに追加できません。（{product.name}）",
+        )
+        if redirect_url:
+            return redirect(redirect_url)
+        return redirect("products:product_list")
+
+    if existing_item:
+        existing_item.quantity += quantity
+        existing_item.save()
+    else:
+        CartItem.objects.create(cart=cart, product=product, quantity=quantity)
 
     return redirect("products:cart_detail")
 
@@ -274,8 +295,10 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     if quantity <= 0:
         return JsonResponse({"ok": False}, status=400)
 
-    # 在庫数を上限としてクリップ
-    max_quantity = item.product.stock if item.product.stock > 0 else 1
+    # 在庫が0の場合は更新不可
+    max_quantity = item.product.stock
+    if max_quantity <= 0:
+        return JsonResponse({"ok": False}, status=409)
     if quantity > max_quantity:
         quantity = max_quantity
 
@@ -287,12 +310,12 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
         .filter(cart=cart)
         .order_by("created_at")
     )
-    cart_total = sum(ci.product.price * ci.quantity for ci in items)
-    total_quantity = sum(ci.quantity for ci in items)
+    available_items = [ci for ci in items if ci.product.stock > 0]
+    cart_total = sum(ci.product.price * ci.quantity for ci in available_items)
+    total_quantity = sum(ci.quantity for ci in available_items)
 
     item_quantity_ranges = {
-        ci.product.id: range(1, (ci.product.stock if ci.product.stock > 0 else 1) + 1)
-        for ci in items
+        ci.product.id: get_quantity_range(ci.product) for ci in items
     }
 
     html = render_to_string(
@@ -321,11 +344,46 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
 def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
     session_key = request.session.session_key
     if session_key is None:
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"ok": False}, status=400)
         return redirect("products:cart_detail")
 
     cart = get_object_or_404(Cart, session_key=session_key)
     item = get_object_or_404(CartItem, id=item_id, cart=cart)
     item.delete()
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        items = (
+            CartItem.objects.select_related("product")
+            .filter(cart=cart)
+            .order_by("created_at")
+        )
+        available_items = [ci for ci in items if ci.product.stock > 0]
+        cart_total = sum(
+            ci.product.price * ci.quantity for ci in available_items
+        )
+        total_quantity = sum(ci.quantity for ci in available_items)
+        item_quantity_ranges = {
+            ci.product.id: get_quantity_range(ci.product) for ci in items
+        }
+
+        html = render_to_string(
+            "cart/_cart_summary.html",
+            {
+                "items": items,
+                "cart_total": cart_total,
+                "total_quantity": total_quantity,
+                "item_quantity_ranges": item_quantity_ranges,
+            },
+            request=request,
+        )
+        return JsonResponse(
+            {
+                "ok": True,
+                "html": html,
+                "total_quantity": total_quantity,
+            }
+        )
 
     return redirect("products:cart_detail")
 
@@ -375,15 +433,28 @@ def order_create(request: HttpRequest) -> HttpResponse:
         messages.warning(request, "カートに商品がありません。")
         return redirect("products:product_list")
 
-    cart_items = CartItem.objects.select_related("product").filter(cart=cart)
+    cart_items = (
+        CartItem.objects.select_related("product")
+        .filter(cart=cart)
+        .order_by("created_at")
+    )
     if not cart_items.exists():
         messages.warning(request, "カートに商品がありません。")
         return redirect("products:product_list")
 
     if not form.is_valid():
         items = list(cart_items)
-        cart_total = sum(item.product.price * item.quantity for item in items)
-        total_quantity = sum(item.quantity for item in items)
+        product_ids = [item.product_id for item in items]
+        current_products = Product.objects.in_bulk(product_ids)
+        for item in items:
+            current_product = current_products.get(item.product_id)
+            if current_product:
+                item.product = current_product
+        available_items = [item for item in items if item.product.stock > 0]
+        cart_total = sum(
+            item.product.price * item.quantity for item in available_items
+        )
+        total_quantity = sum(item.quantity for item in available_items)
         item_quantity_ranges = {}
         for item in items:
             quantity_range = get_quantity_range(item.product)
@@ -405,21 +476,58 @@ def order_create(request: HttpRequest) -> HttpResponse:
         product_ids = [item.product_id for item in items]
         locked_products = Product.objects.select_for_update().in_bulk(product_ids)
 
+        has_errors = False
+        has_adjustments = False
         for item in items:
             product = locked_products.get(item.product_id)
             if product is None:
                 messages.error(
                     request,
-                    f"商品が存在しないため購入できません。（{item.product.name}）",
+                    f"商品が存在しないため購入できません。カートから削除してください。（{item.product.name}）",
                 )
-                return redirect("products:cart_detail")
-            
-            if product.stock < item.quantity:
+                has_errors = True
+                continue
+
+            item.product = product
+
+            if product.stock <= 0:
                 messages.error(
                     request,
-                    f"在庫が不足しているため購入できません。（{product.name}）",
+                    f"在庫切れのためご注文を確定できません。カートから削除してください。（{product.name}）",
                 )
-                return redirect("products:cart_detail")
+                has_errors = True
+                continue
+
+            if product.stock < item.quantity:
+                item.quantity = product.stock
+                item.save(update_fields=["quantity"])
+                messages.warning(
+                    request,
+                    f"在庫数に合わせて数量を変更しました。（{product.name}）",
+                )
+                has_adjustments = True
+
+        if has_errors or has_adjustments:
+            available_items = [ci for ci in items if ci.product.stock > 0]
+            cart_total = sum(
+                item.product.price * item.quantity for item in available_items
+            )
+            total_quantity = sum(item.quantity for item in available_items)
+            item_quantity_ranges = {}
+            for item in items:
+                quantity_range = get_quantity_range(item.product)
+                item_quantity_ranges[item.product.id] = quantity_range
+            return render(
+                request,
+                "cart/cart_detail.html",
+                {
+                    "items": items,
+                    "cart_total": cart_total,
+                    "total_quantity": total_quantity,
+                    "item_quantity_ranges": item_quantity_ranges,
+                    "form": form,
+                },
+            )
 
         # 在庫を更新
         for item in items:
