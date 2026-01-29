@@ -5,6 +5,7 @@
     "csrfmiddlewaretoken",
     "csvg",
     "enctype",
+    "endautoescape",
     "endfor",
     "endwith",
     "gunicorn",
