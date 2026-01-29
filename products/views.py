@@ -171,7 +171,7 @@ def manage_order_detail(request: HttpRequest, pk: int) -> HttpResponse:
     )
     context = {
         "order": order,
-        "items": order.items.all(),
+        "items": order.items.order_by("created_at"),
     }
     return render(request, "manage/orders/order_detail.html", context)
 
@@ -398,7 +398,7 @@ def _send_mail_after_commit(order_id: int) -> None:
             "orders/emails/order_confirmation.txt",
             {
                 "order": order,
-                "items": order.items.all(),
+                "items": order.items.order_by("created_at"),
             },
         )
 
@@ -596,6 +596,6 @@ def order_complete(request: HttpRequest) -> HttpResponse:
         "orders/order_complete.html",
         {
             "order": order,
-            "items": order.items.all(),
+            "items": order.items.order_by("created_at"),
         },
     )
