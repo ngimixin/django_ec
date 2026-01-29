@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load humanize cart_extras %}
+{% block content %}
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h1>ご注文ありがとうございました</h1>
+      <p class="text-muted">以下の内容でご注文を受け付けました。</p>
+    </div>
+    <div class="alert alert-info" role="alert">
+      <i class="bi bi-info-circle me-2"></i>
+      ご注文内容は注文確認メールでもお送りしています。このページは更新すると表示されなくなります。
+    </div>
+    <div class="card mb-4">
+      <div class="card-body">
+        <p class="mb-1">
+          <strong>注文番号：</strong>{{ order.id }}
+        </p>
+        <p class="mb-1">
+          <strong>お名前：</strong>{{ order.name }} 様
+        </p>
+        <p class="mb-1">
+          <strong>電話番号：</strong>{{ order.phone|format_phone }}
+        </p>
+        <p class="mb-1">
+          <strong>メール：</strong>{{ order.email }}
+        </p>
+        <p class="mb-1">
+          <strong>お届け先：</strong>
+          <br>
+          〒{{ order.postal_code|slice:":3" }}-{{ order.postal_code|slice:"3:" }}
+          <br>
+          {{ order.address }}
+        </p>
+        <p class="mb-0">
+          <strong>合計金額：</strong>¥{{ order.total_amount|intcomma }}
+        </p>
+      </div>
+    </div>
+    <div class="card mb-4">
+      <div class="card-header bg-white fw-semibold">ご注文商品一覧</div>
+      <ul class="list-group list-group-flush">
+        {% for item in items %}
+          <li class="list-group-item d-flex justify-content-between">
+            <div>
+              {{ item.product_name }}
+              <br>
+              <small class="text-muted">¥{{ item.price|intcomma }} × {{ item.quantity }}</small>
+            </div>
+            <div>¥{{ item.total_price|intcomma }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="text-center">
+      <a href="{% url 'products:product_list' %}" class="btn btn-primary">商品一覧へ戻る</a>
+    </div>
+  </div>
+{% endblock content %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static humanize %}
 {% block title %}
   {{ SITE_TITLE }} | 商品一覧
 {% endblock title %}
@@ -19,7 +19,7 @@
     </div>
   </header>
   <!-- Section-->
-  <section class="py-5">
+  <section class="py-5 product-list">
     <div class="container px-4 px-lg-5 mt-5">
       {% if products %}
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
@@ -50,16 +50,20 @@
                     </h5>
                     <!-- Product price-->
                     <a href="{% url 'products:product_detail' product.pk %}"
-                       class="text-dark text-decoration-none">￥{{ product.price }}</a>
+                       class="text-dark text-decoration-none">￥{{ product.price|intcomma }}</a>
                   </div>
                 </div>
                 <!-- Product actions-->
                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                   <div class="text-center">
-                    <form method="post" action="{% url 'products:add_to_cart' product.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-outline-dark">カートに入れる</button>
-                    </form>
+                    {% if product.stock > 0 %}
+                      <form method="post" action="{% url 'products:add_to_cart' product.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-dark">カートに入れる</button>
+                      </form>
+                    {% else %}
+                      <button type="button" class="btn btn-outline-secondary" disabled>在庫切れ</button>
+                    {% endif %}
                   </div>
                 </div>
               </div>

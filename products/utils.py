@@ -12,7 +12,9 @@ def get_quantity_range(product: Product, max_per_order: int | None = None) -> li
     Returns:
         1から在庫数（またはmax_per_order）までの整数リスト
     """
-    stock = product.stock if product.stock > 0 else 1
+    stock = product.stock
+    if stock <= 0:
+        return []
     if max_per_order is not None:
         stock = min(stock, max_per_order)
     return list(range(1, stock + 1))

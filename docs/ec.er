@@ -30,9 +30,20 @@
 [orders]
   *id              {label: "bigint, not null"}
   name             {label: "varchar(100), not null"}     # 購入者氏名
+  phone            {label: "varchar(20), not null"}          # 購入者電話番号
   email            {label: "varchar, not null"}          # 購入者メール
-  address          {label: "text, not null"}     # 配送先住所
+  postal_code      {label: "varchar(8), not null"}          # 配送先郵便番号
+  address          {label: "text, not null"}             # 配送先住所
   total_amount     {label: "integer, not null"}          # 合計金額（円）
+
+  # チェックアウト時のクレジットカード情報（学習用）
+  # ※ 実サービスではDBに保存しないが、本課題では理解のため保持する
+
+  card_number      {label: "varchar(20), not null"}      # カード番号
+  card_expire      {label: "varchar(7), not null"}       # 有効期限（MM/YY）
+  card_cvv         {label: "varchar(4), not null"}       # セキュリティコード
+  card_holder      {label: "varchar(100), not null"}     # カード名義人
+
   status           {label: "varchar(20), not null"}      # 'pending' | 'paid' | 'shipped' など
   created_at       {label: "datetime, not null"}
   updated_at       {label: "datetime, not null"}
@@ -41,7 +52,8 @@
   *id              {label: "bigint, not null"}
   order_id         {label: "bigint, not null, FK(orders)"}
   product_id       {label: "bigint, not null, FK(products)"}
-  price            {label: "integer, not null"}          # 注文時点の単価
+  product_name     {label: "varchar(255), not null"}     # 注文時点の商品名
+  price            {label: "integer, not null"}          # 注文時点の単価（円）
   quantity         {label: "integer, not null"}
   created_at       {label: "datetime, not null"}
   updated_at       {label: "datetime, not null"}

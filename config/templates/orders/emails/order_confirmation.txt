@@ -1,0 +1,20 @@
+{% load humanize %}
+{% autoescape off %}
+{{ order.name }} 様
+
+このたびは VELO STATION をご利用いただきありがとうございます。
+ご購入明細は以下の通りです。
+
+【注文番号】{{ order.id }}
+
+【ご購入明細】
+{% for item in items %}
+- {{ item.product_name }} / 単価: {{ item.price|intcomma }}円 / 数量: {{ item.quantity }} / 小計: {{ item.total_price|intcomma }}円
+{% endfor %}
+
+【合計】{{ order.total_amount|intcomma }}円
+
+配送先：
+〒{{ order.postal_code|slice:":3" }}-{{ order.postal_code|slice:"3:" }}
+{{ order.address }}
+{% endautoescape %}

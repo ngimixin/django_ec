@@ -4,10 +4,11 @@
   {{ SITE_TITLE }} | 商品管理：削除確認（{{ product.name }}）
 {% endblock title %}
 {% block content %}
-  <div class="container py-4">
+  <div class="container px-4 px-lg-5 py-4">
     <h1 class="mb-4">商品管理：削除確認（{{ product.name }}）</h1>
     <div class="alert alert-warning" role="alert">
-      <strong style="color: red;">注意：</strong> <span style="color: red;">この商品を削除すると、元に戻すことはできません。</span>
+      <strong class="text-danger">注意：</strong>
+      <span class="text-danger">この商品を削除すると、元に戻すことはできません。</span>
     </div>
     <div class="card mb-3">
       <div class="card-body">
