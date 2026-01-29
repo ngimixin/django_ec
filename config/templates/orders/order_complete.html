@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load humanize cart_extras %}
 {% block content %}
   <div class="container py-5">
     <div class="text-center mb-5">
@@ -19,7 +19,15 @@
           <strong>お名前：</strong>{{ order.name }} 様
         </p>
         <p class="mb-1">
+          <strong>電話番号：</strong>{{ order.phone|format_phone }}
+        </p>
+        <p class="mb-1">
+          <strong>メール：</strong>{{ order.email }}
+        </p>
+        <p class="mb-1">
           <strong>お届け先：</strong>
+          <br>
+          〒{{ order.postal_code|slice:":3" }}-{{ order.postal_code|slice:"3:" }}
           <br>
           {{ order.address }}
         </p>

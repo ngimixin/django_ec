@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize tz %}
+{% load humanize tz cart_extras %}
 {% block title %}
   {{ SITE_TITLE }} | 購入明細：詳細
 {% endblock title %}
@@ -15,18 +15,34 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <p class="mb-1"><strong>注文ID：</strong>{{ order.id }}</p>
-            <p class="mb-1"><strong>注文日時：</strong>{{ order.created_at|localtime|date:"Y-m-d H:i" }}</p>
-            <p class="mb-1"><strong>ステータス：</strong>{{ order.get_status_display }}</p>
-            <p class="mb-1"><strong>合計金額：</strong>¥{{ order.total_amount|intcomma }}</p>
+            <p class="mb-1">
+              <strong>注文ID：</strong>{{ order.id }}
+            </p>
+            <p class="mb-1">
+              <strong>注文日時：</strong>{{ order.created_at|localtime|date:"Y-m-d H:i" }}
+            </p>
+            <p class="mb-1">
+              <strong>ステータス：</strong>{{ order.get_status_display }}
+            </p>
+            <p class="mb-1">
+              <strong>合計金額：</strong>¥{{ order.total_amount|intcomma }}
+            </p>
           </div>
           <div class="col-md-6">
-            <p class="mb-1"><strong>お名前：</strong>{{ order.name }}</p>
-            <p class="mb-1"><strong>電話番号：</strong>{{ order.phone }}</p>
-            <p class="mb-1"><strong>メール：</strong>{{ order.email }}</p>
             <p class="mb-1">
-              <strong>住所：</strong><br>
-              {{ order.postal_code }}<br>
+              <strong>お名前：</strong>{{ order.name }}
+            </p>
+            <p class="mb-1">
+              <strong>電話番号：</strong>{{ order.phone|format_phone }}
+            </p>
+            <p class="mb-1">
+              <strong>メール：</strong>{{ order.email }}
+            </p>
+            <p class="mb-1">
+              <strong>住所：</strong>
+              <br>
+              〒{{ order.postal_code|slice:":3" }}-{{ order.postal_code|slice:"3:" }}
+              <br>
               {{ order.address|linebreaksbr }}
             </p>
           </div>
@@ -36,7 +52,9 @@
     <div class="card mb-4">
       <div class="card-header bg-white fw-semibold">支払い情報（学習用）</div>
       <div class="card-body">
-        <p class="mb-1"><strong>カード番号：</strong>**** **** **** {{ order.card_number|slice:"-4:" }}</p>
+        <p class="mb-1">
+          <strong>カード番号：</strong>**** **** **** {{ order.card_number|slice:"-4:" }}
+        </p>
         <p class="mb-0 text-muted">セキュリティのため、有効期限・CVV・名義は表示していません。</p>
       </div>
     </div>
@@ -64,9 +82,7 @@
           </tbody>
         </table>
       </div>
-      <div class="card-footer bg-white text-end fw-semibold">
-        合計：¥{{ order.total_amount|intcomma }}
-      </div>
+      <div class="card-footer bg-white text-end fw-semibold">合計：¥{{ order.total_amount|intcomma }}</div>
     </div>
   </div>
 {% endblock content %}
