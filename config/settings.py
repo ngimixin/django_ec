@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import environ
+from django.contrib.messages import constants as messages
 
 from pathlib import Path
 
@@ -149,6 +150,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SITE_TITLE = "VELO STATION"
 COPYRIGHT_YEAR = 2026
+
+MESSAGE_TAGS = {
+    messages.ERROR: "danger",
+}
 
 
 # ==============================
