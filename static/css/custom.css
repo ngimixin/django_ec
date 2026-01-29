@@ -159,6 +159,16 @@ h5 a:hover {
   transition: none !important;
 }
 
+/* 商品詳細ページの数量セレクト */
+.product-detail .product-quantity-group {
+  max-width: 300px;
+}
+
+.product-detail .product-quantity-select {
+  width: 100px;
+  flex: 0 0 100px;
+}
+
 /* カート詳細ページの削除ボタン、購入ボタン、Redeemボタンの hover 反転を即反映 */
 .cart-detail .btn-outline-danger,
 .cart-detail .btn-primary,

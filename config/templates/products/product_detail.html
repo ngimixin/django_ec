@@ -14,11 +14,15 @@
               {% if product.image %}
                 <img class="card-img-top"
                      src="{{ product.image.url }}"
-                     alt="{{ product.name }}">
+                     alt="{{ product.name }}"
+                     width="600"
+                     height="700">
               {% else %}
                 <img class="card-img-top"
                      src="https://dummyimage.com/600x700/dee2e6/6c757d.jpg"
-                     alt="{{ product.name }}" />
+                     alt="{{ product.name }}"
+                     width="600"
+                     height="700" />
               {% endif %}
             </div>
           </div>
@@ -29,23 +33,24 @@
               <span>￥{{ product.price|intcomma }}</span>
             </div>
             <p class="lead">{{ product.description|linebreaks }}</p>
-            <form method="post" action="{% url 'products:add_to_cart' product.id %}">
-              {% csrf_token %}
-              <div class="input-group" style="max-width: 300px;">
-                <select name="quantity"
-                        class="form-select"
-                        style="width: 100px;
-                               flex: 0 0 100px">
-                  {% for qty in quantity_range %}
-                    <option value="{{ qty }}" {% if qty == 1 %}selected{% endif %}>{{ qty }}</option>
-                  {% endfor %}
-                </select>
-                <button type="submit" class="btn btn-outline-dark">
-                  <i class="bi-cart-fill me-1"></i>
-                  カートに入れる
-                </button>
-              </div>
-            </form>
+            {% if quantity_range %}
+              <form method="post" action="{% url 'products:add_to_cart' product.id %}">
+                {% csrf_token %}
+                <div class="input-group product-quantity-group">
+                  <select name="quantity" class="form-select product-quantity-select">
+                    {% for qty in quantity_range %}
+                      <option value="{{ qty }}" {% if qty == 1 %}selected{% endif %}>{{ qty }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="btn btn-outline-dark">
+                    <i class="bi-cart-fill me-1"></i>
+                    カートに入れる
+                  </button>
+                </div>
+              </form>
+            {% else %}
+              <button type="button" class="btn btn-outline-secondary" disabled>在庫切れ</button>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -63,11 +68,17 @@
                   <div class="product-thumb-wrapper">
                     <a href="{% url 'products:product_detail' p.pk %}">
                       {% if p.image %}
-                        <img class="card-img-top" src="{{ p.image.url }}" alt="{{ p.name }}" />
+                        <img class="card-img-top"
+                             src="{{ p.image.url }}"
+                             alt="{{ p.name }}"
+                             width="450"
+                             height="300" />
                       {% else %}
                         <img class="card-img-top"
                              src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg"
-                             alt="{{ p.name }}" />
+                             alt="{{ p.name }}"
+                             width="450"
+                             height="300" />
                       {% endif %}
                     </a>
                   </div>
@@ -87,10 +98,14 @@
                   <!-- Product actions-->
                   <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                     <div class="text-center">
-                      <form method="post" action="{% url 'products:add_to_cart' p.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-dark">カートに入れる</button>
-                      </form>
+                      {% if p.stock > 0 %}
+                        <form method="post" action="{% url 'products:add_to_cart' p.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-outline-dark">カートに入れる</button>
+                        </form>
+                      {% else %}
+                        <button type="button" class="btn btn-outline-secondary" disabled>在庫切れ</button>
+                      {% endif %}
                     </div>
                   </div>
                 </div>
