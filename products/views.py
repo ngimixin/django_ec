@@ -450,6 +450,16 @@ def order_create(request: HttpRequest) -> HttpResponse:
             current_product = current_products.get(item.product_id)
             if current_product:
                 item.product = current_product
+                if (
+                    current_product.stock > 0
+                    and item.quantity > current_product.stock
+                ):
+                    item.quantity = current_product.stock
+                    item.save(update_fields=["quantity"])
+                    messages.warning(
+                        request,
+                        f"在庫数に合わせて数量を変更しました。（{current_product.name}）",
+                    )
         available_items = [item for item in items if item.product.stock > 0]
         cart_total = sum(
             item.product.price * item.quantity for item in available_items
