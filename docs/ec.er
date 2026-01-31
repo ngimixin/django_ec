@@ -27,6 +27,15 @@
   updated_at       {label: "datetime, not null"}
   # NOTE: UNIQUE(cart_id, product_id)
 
+[promotion_codes]
+  *id              {label: "bigint, not null"}
+  code             {label: "varchar(7), not null"}
+  discount_amount  {label: "integer, not null"}        # 100-1000
+  is_used          {label: "boolean, not null, default false"}
+  used_at          {label: "datetime, null"}
+  created_at       {label: "datetime, not null"}
+  # NOTE: UNIQUE(code)
+
 [orders]
   *id              {label: "bigint, not null"}
   name             {label: "varchar(100), not null"}     # 購入者氏名
@@ -45,6 +54,10 @@
   card_holder      {label: "varchar(100), not null"}     # カード名義人
 
   status           {label: "varchar(20), not null"}      # 'pending' | 'paid' | 'shipped' など
+
+  promotion_code_id        {label: "bigint, null, FK(promotion_codes)"}
+  promotion_discount_amount {label: "integer, null"}     # 100-1000
+
   created_at       {label: "datetime, not null"}
   updated_at       {label: "datetime, not null"}
 
@@ -65,6 +78,7 @@ products  1--* cart_items       # 1商品が複数カートアイテムで参照
 # 2) 注文起点
 orders    1--* order_items      # 1注文に複数注文明細
 products  1--* order_items      # 1商品が複数注文明細で参照されうる（いろんな注文）
+orders    ?--1 promotion_codes  # 1注文に0 or 1プロモコード（未適用ならnull）
 
 # Cardinality    Syntax
 # 0 or 1         ?
