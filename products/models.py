@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Product(models.Model):
@@ -103,6 +104,29 @@ class Order(models.Model):
         default=Status.PENDING,
         verbose_name="ステータス",
     )
+
+    # チェックアウト時にプロモーションコードを適用した場合に使用
+    promotion_code = models.ForeignKey(
+        "PromotionCode",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="orders",
+        verbose_name="プロモーションコード",
+    )
+    
+    # 注文時にプロモーションコードを使用した場合の割引額（未適用ならnull）
+    promotion_discount_amount = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(100),
+            MaxValueValidator(1000),
+        ],
+        verbose_name="適用割引金額",
+        help_text="未適用の場合は空欄",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
@@ -135,3 +159,34 @@ class OrderItem(models.Model):
     def total_price(self) -> int:
         """小計（単価 × 数量）を返す"""
         return self.price * self.quantity
+
+
+class PromotionCode(models.Model):
+    """プロモーションコード（割引コード）を管理するモデル"""
+    code = models.CharField(
+        max_length=7,
+        verbose_name="プロモーションコード",
+        unique=True,
+        help_text="7桁の英数字",
+    )
+    
+    discount_amount = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(100),
+            MaxValueValidator(1000),
+        ],
+        verbose_name="割引金額",
+        help_text="割引金額（100円から1000円まで）",
+    )
+    
+    is_used = models.BooleanField(default=False, verbose_name="使用済み")
+    used_at = models.DateTimeField(null=True, blank=True, verbose_name="使用日時") # 未使用ならnull
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "プロモーションコード"
+        verbose_name_plural = "プロモーションコード"
+
+    def __str__(self) -> str:
+        return f"{self.code} (-{self.discount_amount}円)"

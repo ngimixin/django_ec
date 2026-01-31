@@ -41,6 +41,18 @@ CREATE TABLE cart_items (
   UNIQUE (cart_id, product_id)
 );
 
+-- promotion_codes（プロモーションコード）
+DROP TABLE IF EXISTS promotion_codes CASCADE;
+CREATE TABLE promotion_codes (
+  id              BIGSERIAL PRIMARY KEY,
+  code            VARCHAR(7) NOT NULL,
+  discount_amount INTEGER NOT NULL CHECK (discount_amount BETWEEN 100 AND 1000),
+  is_used         BOOLEAN NOT NULL DEFAULT FALSE,
+  used_at         TIMESTAMP NULL,
+  created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE (code)
+);
+
 -- orders（注文ヘッダ）
 DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders (
@@ -60,6 +72,10 @@ CREATE TABLE orders (
   card_holder  VARCHAR(100) NOT NULL,           -- カード名義人
 
   status       VARCHAR(20) NOT NULL DEFAULT 'pending',   -- 'pending' | 'paid' | 'shipped' など想定
+
+  promotion_code_id BIGINT NULL REFERENCES promotion_codes(id) ON DELETE SET NULL,
+  promotion_discount_amount INTEGER NULL CHECK (promotion_discount_amount BETWEEN 100 AND 1000),
+
   created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
 );
