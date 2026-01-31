@@ -342,6 +342,13 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
 
 @require_POST
 def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
+    """
+    カート内の商品を1件削除するビュー。
+
+    通常リクエストの場合はカート詳細ページへリダイレクトし、
+    Ajax（XMLHttpRequest）の場合は、削除後のカートサマリーHTMLと
+    合計数量を JSON で返す。
+    """
     session_key = request.session.session_key
     if session_key is None:
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
