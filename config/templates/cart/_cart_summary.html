@@ -54,14 +54,36 @@
   {% else %}
     <li class="list-group-item">カートに商品がありません。</li>
   {% endif %}
+  {% if promotion_code and promotion_discount_amount %}
+    <li class="list-group-item d-flex justify-content-between">
+      <span>プロモーションコード ({{ promotion_code.code }})</span>
+      <strong class="text-danger">-￥{{ promotion_discount_amount|intcomma }}</strong>
+    </li>
+  {% endif %}
   <!-- 合計 -->
   <li class="list-group-item d-flex justify-content-between">
-    <span>合計 ({{ total_quantity }}点)</span> <strong>(税込) ￥{{ cart_total|intcomma }}</strong>
+    <span>合計 ({{ total_quantity }}点)</span>
+    <strong>(税込) ￥{{ payable_total|intcomma }}</strong>
   </li>
 </ul>
-<form class="card p-2">
-  <div class="input-group">
-    <input type="text" class="form-control" placeholder="Promo code">
-    <button type="submit" class="btn btn-secondary">Redeem</button>
-  </div>
-</form>
+<!-- プロモーションコード入力フォーム -->
+<div class="card p-2">
+  <form method="post"
+        action="{% url 'products:cart_promotion_apply' %}"
+        class="promotion-apply-form">
+    {% csrf_token %}
+    <div class="input-group">
+      <input type="text"
+             name="promotion_code"
+             class="form-control"
+             placeholder="プロモーションコード"
+             value="{{ promotion_form.promotion_code.value|default_if_none:'' }}">
+      <button type="submit" class="btn btn-secondary">適用する</button>
+    </div>
+    {% if promotion_form.promotion_code.errors %}
+      <div class="text-danger small mt-2">
+        {{ promotion_form.promotion_code.errors }}
+      </div>
+    {% endif %}
+  </form>
+</div>

@@ -3,7 +3,7 @@ import unicodedata
 from django import forms
 from django.utils import timezone
 
-from .models import Product, Order
+from .models import Product, Order, PromotionCode
 
 
 class ProductForm(forms.ModelForm):
@@ -283,3 +283,35 @@ class OrderCreateForm(forms.ModelForm):
             cleaned_data["address"] = address
 
         return cleaned_data
+
+
+class PromotionCodeApplyForm(forms.Form):
+    """プロモーションコードの適用フォーム。"""
+
+    promotion_code = forms.CharField(max_length=7)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.promotion: PromotionCode | None = None
+
+        self.fields["promotion_code"].error_messages["required"] = (
+            "プロモーションコードを入力してください。"
+        )
+
+    def clean_promotion_code(self) -> str:
+        raw_value = (self.cleaned_data.get("promotion_code") or "").strip()
+        normalized = unicodedata.normalize("NFKC", raw_value).upper()
+
+        if len(normalized) != 7 or not normalized.isalnum():
+            raise forms.ValidationError(
+                "プロモーションコードは7桁の英数字で入力してください。"
+            )
+
+        promotion = PromotionCode.objects.filter(
+            code__iexact=normalized, is_used=False
+        ).first()
+        if not promotion:
+            raise forms.ValidationError("プロモーションコードが無効です。")
+
+        self.promotion = promotion
+        return normalized
