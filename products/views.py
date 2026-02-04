@@ -8,14 +8,95 @@ from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import timezone
 from products.services.cart import get_or_create_cart
 
-from .models import Product, Cart, CartItem, Order, OrderItem
+from .models import Product, Cart, CartItem, Order, OrderItem, PromotionCode
 from config.decorators import basic_auth_required as auth
-from .forms import ProductForm, OrderCreateForm
+from .forms import ProductForm, OrderCreateForm, PromotionCodeApplyForm
 from .utils import get_quantity_range
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_promotion(
+    request: HttpRequest, cart_total: int
+) -> tuple[PromotionCode | None, int, int]:
+    """セッションのプロモーションコードを検証し、割引と合計を返す。
+
+    Args:
+        request: プロモーションコードのセッション情報を参照するリクエスト。
+        cart_total: 割引前のカート合計金額。
+
+    Returns:
+        (promotion, discount_amount, discounted_total) のタプル。
+        promotion は有効な場合のみ `PromotionCode` が入り、無効時は None。
+        discount_amount は割引額、discounted_total は割引後の合計金額。
+    """
+    promo_id = request.session.get("promotion_code_id")
+    if not promo_id or cart_total <= 0:
+        request.session.pop("promotion_code_id", None)
+        return None, 0, cart_total
+
+    promotion = PromotionCode.objects.filter(id=promo_id, is_used=False).first()
+    if not promotion:
+        request.session.pop("promotion_code_id", None)
+        return None, 0, cart_total
+
+    discount_amount = min(promotion.discount_amount, cart_total)
+    discounted_total = max(cart_total - discount_amount, 0)
+
+    return promotion, discount_amount, discounted_total
+
+
+def _build_cart_summary_context(
+    request: HttpRequest,
+    items: list[CartItem] | tuple[CartItem, ...],
+    promotion_form: PromotionCodeApplyForm | None = None,
+) -> dict:
+    """カートの集計値とプロモーション情報をテンプレート用にまとめる。
+
+    Args:
+        request: プロモーション適用状況の解決に利用するリクエスト。
+        items: カート内の明細。在庫なしの商品が含まれる場合がある。
+        promotion_form: 画面に表示するクーポン入力フォーム。省略時は初期値を設定する。
+
+    Returns:
+        テンプレートへ渡す集計情報の辞書。以下のキーを含む。
+        - items: 受け取った明細
+        - cart_total: 在庫がある商品の小計合計
+        - total_quantity: 在庫がある商品の合計数量
+        - item_quantity_ranges: 商品ごとの数量選択肢
+        - promotion_code: 適用中のプロモーション
+        - promotion_discount_amount: 割引額
+        - payable_total: 割引適用後（未適用時は同額）の支払合計
+        - promotion_form: プロモーション入力フォーム
+    """
+    available_items = [item for item in items if item.product.stock > 0]
+    cart_total = sum(item.product.price * item.quantity for item in available_items)
+    total_quantity = sum(item.quantity for item in available_items)
+    item_quantity_ranges = {
+        item.product.id: get_quantity_range(item.product) for item in items
+    }
+
+    promotion, promotion_discount_amount, payable_total = _resolve_promotion(
+        request, cart_total
+    )
+
+    if promotion_form is None:
+        initial = {"promotion_code": promotion.code} if promotion else None
+        promotion_form = PromotionCodeApplyForm(initial=initial)
+
+    return {
+        "items": items,
+        "cart_total": cart_total,
+        "total_quantity": total_quantity,
+        "item_quantity_ranges": item_quantity_ranges,
+        "promotion_code": promotion,
+        "promotion_discount_amount": promotion_discount_amount,
+        "payable_total": payable_total,
+        "promotion_form": promotion_form,
+    }
 
 
 def product_list(request: HttpRequest) -> HttpResponse:
@@ -182,42 +263,19 @@ def cart_detail(request: HttpRequest) -> HttpResponse:
     """
     if request.session.session_key is None:
         items = []
-        cart_total = 0
-        total_quantity = 0
-        item_quantity_ranges = {}
     else:
         session_key = request.session.session_key
         cart = Cart.objects.filter(session_key=session_key).first()
         if cart is None:
             items = []
-            cart_total = 0
-            total_quantity = 0
-            item_quantity_ranges = {}
         else:
-            items = (
+            items = list(
                 CartItem.objects.select_related("product")
                 .filter(cart=cart)
                 .order_by("created_at")
             )
 
-            available_items = [item for item in items if item.product.stock > 0]
-            cart_total = sum(
-                item.product.price * item.quantity for item in available_items
-            )
-            total_quantity = sum(item.quantity for item in available_items)
-
-            # 各商品の在庫数に基づいた数量選択肢を生成
-            item_quantity_ranges = {}
-            for item in items:
-                quantity_range = get_quantity_range(item.product)
-                item_quantity_ranges[item.product.id] = quantity_range
-
-    context = {
-        "items": items,
-        "cart_total": cart_total,
-        "total_quantity": total_quantity,
-        "item_quantity_ranges": item_quantity_ranges,
-    }
+    context = _build_cart_summary_context(request, items)
     return render(request, "cart/cart_detail.html", context)
 
 
@@ -305,29 +363,14 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
     item.quantity = quantity
     item.save()
 
-    items = (
+    items = list(
         CartItem.objects.select_related("product")
         .filter(cart=cart)
         .order_by("created_at")
     )
-    available_items = [ci for ci in items if ci.product.stock > 0]
-    cart_total = sum(ci.product.price * ci.quantity for ci in available_items)
-    total_quantity = sum(ci.quantity for ci in available_items)
+    context = _build_cart_summary_context(request, items)
 
-    item_quantity_ranges = {
-        ci.product.id: get_quantity_range(ci.product) for ci in items
-    }
-
-    html = render_to_string(
-        "cart/_cart_summary.html",
-        {
-            "items": items,
-            "cart_total": cart_total,
-            "total_quantity": total_quantity,
-            "item_quantity_ranges": item_quantity_ranges,
-        },
-        request=request,
-    )
+    html = render_to_string("cart/_cart_summary.html", context, request=request)
 
     return JsonResponse(
         {
@@ -335,7 +378,7 @@ def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
             "html": html,
             "item_id": item_id,
             "quantity": quantity,
-            "total_quantity": total_quantity,
+            "total_quantity": context["total_quantity"],
         }
     )
 
@@ -360,39 +403,61 @@ def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
     item.delete()
 
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        items = (
+        items = list(
             CartItem.objects.select_related("product")
             .filter(cart=cart)
             .order_by("created_at")
         )
-        available_items = [ci for ci in items if ci.product.stock > 0]
-        cart_total = sum(
-            ci.product.price * ci.quantity for ci in available_items
-        )
-        total_quantity = sum(ci.quantity for ci in available_items)
-        item_quantity_ranges = {
-            ci.product.id: get_quantity_range(ci.product) for ci in items
-        }
+        context = _build_cart_summary_context(request, items)
 
-        html = render_to_string(
-            "cart/_cart_summary.html",
-            {
-                "items": items,
-                "cart_total": cart_total,
-                "total_quantity": total_quantity,
-                "item_quantity_ranges": item_quantity_ranges,
-            },
-            request=request,
-        )
+        html = render_to_string("cart/_cart_summary.html", context, request=request)
         return JsonResponse(
             {
                 "ok": True,
                 "html": html,
-                "total_quantity": total_quantity,
+                "total_quantity": context["total_quantity"],
             }
         )
 
     return redirect("products:cart_detail")
+
+
+@require_POST
+def cart_promotion_apply(request: HttpRequest) -> HttpResponse:
+    """
+    プロモーションコードを適用するビュー。
+    """
+    if not request.session.session_key:
+        request.session.create()
+
+    form = PromotionCodeApplyForm(request.POST)
+    if form.is_valid() and form.promotion is not None:
+        request.session["promotion_code_id"] = form.promotion.id
+
+    session_key = request.session.session_key
+    cart = Cart.objects.filter(session_key=session_key).first()
+    if cart is None:
+        items = []
+    else:
+        items = list(
+            CartItem.objects.select_related("product")
+            .filter(cart=cart)
+            .order_by("created_at")
+        )
+
+    context = _build_cart_summary_context(request, items, promotion_form=form)
+    html = render_to_string("cart/_cart_summary.html", context, request=request)
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse(
+            {
+                "ok": form.is_valid(),
+                "html": html,
+                "total_quantity": context["total_quantity"],
+            }
+        )
+
+    return render(request, "cart/cart_detail.html", context)
 
 
 def _send_mail_after_commit(order_id: int) -> None:
@@ -457,33 +522,16 @@ def order_create(request: HttpRequest) -> HttpResponse:
             current_product = current_products.get(item.product_id)
             if current_product:
                 item.product = current_product
-                if (
-                    current_product.stock > 0
-                    and item.quantity > current_product.stock
-                ):
+                if current_product.stock > 0 and item.quantity > current_product.stock:
                     item.quantity = current_product.stock
                     item.save(update_fields=["quantity"])
                     messages.warning(
                         request,
                         f"在庫数に合わせて数量を変更しました。（{current_product.name}）",
                     )
-        available_items = [item for item in items if item.product.stock > 0]
-        cart_total = sum(
-            item.product.price * item.quantity for item in available_items
-        )
-        total_quantity = sum(item.quantity for item in available_items)
-        item_quantity_ranges = {}
-        for item in items:
-            quantity_range = get_quantity_range(item.product)
-            item_quantity_ranges[item.product.id] = quantity_range
 
-        context = {
-            "items": items,
-            "cart_total": cart_total,
-            "total_quantity": total_quantity,
-            "item_quantity_ranges": item_quantity_ranges,
-            "form": form,
-        }
+        context = _build_cart_summary_context(request, items)
+        context["form"] = form
         return render(request, "cart/cart_detail.html", context)
 
     order: Order | None = None
@@ -525,26 +573,9 @@ def order_create(request: HttpRequest) -> HttpResponse:
                 has_adjustments = True
 
         if has_errors or has_adjustments:
-            available_items = [ci for ci in items if ci.product.stock > 0]
-            cart_total = sum(
-                item.product.price * item.quantity for item in available_items
-            )
-            total_quantity = sum(item.quantity for item in available_items)
-            item_quantity_ranges = {}
-            for item in items:
-                quantity_range = get_quantity_range(item.product)
-                item_quantity_ranges[item.product.id] = quantity_range
-            return render(
-                request,
-                "cart/cart_detail.html",
-                {
-                    "items": items,
-                    "cart_total": cart_total,
-                    "total_quantity": total_quantity,
-                    "item_quantity_ranges": item_quantity_ranges,
-                    "form": form,
-                },
-            )
+            context = _build_cart_summary_context(request, items)
+            context["form"] = form
+            return render(request, "cart/cart_detail.html", context)
 
         # 在庫を更新
         for item in items:
@@ -572,11 +603,35 @@ def order_create(request: HttpRequest) -> HttpResponse:
                 )
             )
 
-        order.total_amount = total_amount
+        promotion = None
+        promotion_discount_amount = 0
+        promo_id = request.session.get("promotion_code_id")
+        if promo_id:
+            promotion = (
+                PromotionCode.objects.select_for_update()
+                .filter(id=promo_id, is_used=False)
+                .first()
+            )
+            if not promotion:
+                request.session.pop("promotion_code_id", None)
+        if promotion:
+            promotion_discount_amount = min(promotion.discount_amount, total_amount)
+
+        order.total_amount = max(total_amount - promotion_discount_amount, 0)
+        order.promotion_code = promotion
+        if promotion:
+            # 注文時点のプロモーション割引額
+            order.promotion_discount_amount = promotion_discount_amount
         order.save()
 
         OrderItem.objects.bulk_create(order_items)
         cart.delete()
+
+        if promotion:
+            promotion.is_used = True
+            promotion.used_at = timezone.now()
+            promotion.save(update_fields=["is_used", "used_at"])
+            request.session.pop("promotion_code_id", None)
 
         order_id = order.id
         transaction.on_commit(lambda: _send_mail_after_commit(order_id))

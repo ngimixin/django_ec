@@ -114,7 +114,7 @@ class Order(models.Model):
         related_name="orders",
         verbose_name="プロモーションコード",
     )
-    
+
     # 注文時にプロモーションコードを使用した場合の割引額（未適用ならnull）
     promotion_discount_amount = models.PositiveIntegerField(
         null=True,
@@ -163,13 +163,14 @@ class OrderItem(models.Model):
 
 class PromotionCode(models.Model):
     """プロモーションコード（割引コード）を管理するモデル"""
+
     code = models.CharField(
         max_length=7,
         verbose_name="プロモーションコード",
         unique=True,
         help_text="7桁の英数字",
     )
-    
+
     discount_amount = models.PositiveIntegerField(
         validators=[
             MinValueValidator(100),
@@ -178,9 +179,11 @@ class PromotionCode(models.Model):
         verbose_name="割引金額",
         help_text="割引金額（100円から1000円まで）",
     )
-    
+
     is_used = models.BooleanField(default=False, verbose_name="使用済み")
-    used_at = models.DateTimeField(null=True, blank=True, verbose_name="使用日時") # 未使用ならnull
+    used_at = models.DateTimeField(
+        null=True, blank=True, verbose_name="使用日時"
+    )  # 未使用ならnull
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
 
     class Meta:

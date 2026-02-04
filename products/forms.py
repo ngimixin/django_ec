@@ -294,9 +294,9 @@ class PromotionCodeApplyForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.promotion: PromotionCode | None = None
 
-        self.fields["promotion_code"].error_messages["required"] = (
-            "プロモーションコードを入力してください。"
-        )
+        self.fields["promotion_code"].error_messages[
+            "required"
+        ] = "プロモーションコードを入力してください。"
 
     def clean_promotion_code(self) -> str:
         raw_value = (self.cleaned_data.get("promotion_code") or "").strip()
