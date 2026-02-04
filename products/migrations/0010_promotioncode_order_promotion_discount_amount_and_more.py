@@ -8,34 +8,87 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0009_alter_orderitem_product'),
+        ("products", "0009_alter_orderitem_product"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PromotionCode',
+            name="PromotionCode",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(help_text='7桁の英数字', max_length=7, unique=True, verbose_name='プロモーションコード')),
-                ('discount_amount', models.PositiveIntegerField(help_text='割引金額（100円から1000円まで）', validators=[django.core.validators.MinValueValidator(100), django.core.validators.MaxValueValidator(1000)], verbose_name='割引金額')),
-                ('is_used', models.BooleanField(default=False, verbose_name='使用済み')),
-                ('used_at', models.DateTimeField(blank=True, null=True, verbose_name='使用日時')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        help_text="7桁の英数字",
+                        max_length=7,
+                        unique=True,
+                        verbose_name="プロモーションコード",
+                    ),
+                ),
+                (
+                    "discount_amount",
+                    models.PositiveIntegerField(
+                        help_text="割引金額（100円から1000円まで）",
+                        validators=[
+                            django.core.validators.MinValueValidator(100),
+                            django.core.validators.MaxValueValidator(1000),
+                        ],
+                        verbose_name="割引金額",
+                    ),
+                ),
+                (
+                    "is_used",
+                    models.BooleanField(default=False, verbose_name="使用済み"),
+                ),
+                (
+                    "used_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="使用日時"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
             ],
             options={
-                'verbose_name': 'プロモーションコード',
-                'verbose_name_plural': 'プロモーションコード',
-                'ordering': ['-created_at'],
+                "verbose_name": "プロモーションコード",
+                "verbose_name_plural": "プロモーションコード",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.AddField(
-            model_name='order',
-            name='promotion_discount_amount',
-            field=models.PositiveIntegerField(blank=True, help_text='未適用の場合は空欄', null=True, validators=[django.core.validators.MinValueValidator(100), django.core.validators.MaxValueValidator(1000)], verbose_name='適用割引金額'),
+            model_name="order",
+            name="promotion_discount_amount",
+            field=models.PositiveIntegerField(
+                blank=True,
+                help_text="未適用の場合は空欄",
+                null=True,
+                validators=[
+                    django.core.validators.MinValueValidator(100),
+                    django.core.validators.MaxValueValidator(1000),
+                ],
+                verbose_name="適用割引金額",
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='promotion_code',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='orders', to='products.promotioncode', verbose_name='プロモーションコード'),
+            model_name="order",
+            name="promotion_code",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="orders",
+                to="products.promotioncode",
+                verbose_name="プロモーションコード",
+            ),
         ),
     ]
