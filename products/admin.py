@@ -3,7 +3,7 @@ from typing import Any
 from django.contrib import admin
 from django.http import HttpRequest
 
-from .models import Product, Order, OrderItem
+from .models import Product, Order, OrderItem, PromotionCode
 
 
 def get_app_list(
@@ -13,7 +13,7 @@ def get_app_list(
     app_dict = self._build_app_dict(request, app_label)
 
     # モデルの希望順序を定義
-    model_order = ["Product", "Order", "OrderItem"]
+    model_order = ["Product", "PromotionCode", "Order", "OrderItem"]
 
     for app_name, app in app_dict.items():
         if app_name == "products":
@@ -81,3 +81,17 @@ class OrderItemAdmin(admin.ModelAdmin):
         "updated_at",
     )
     search_fields = ("order__name", "product__name")
+
+
+@admin.register(PromotionCode)
+class PromotionCodeAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "code",
+        "discount_amount",
+        "is_used",
+        "used_at",
+        "created_at",
+    )
+    list_filter = ("is_used",)
+    search_fields = ("code",)
