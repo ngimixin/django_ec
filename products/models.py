@@ -188,8 +188,8 @@ class PromotionCode(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "プロモーションコード"
-        verbose_name_plural = "プロモーションコード"
+        verbose_name = "Promotion code"
+        verbose_name_plural = "Promotion codes"
 
     def __str__(self) -> str:
         return f"{self.code} (-{self.discount_amount}円)"
