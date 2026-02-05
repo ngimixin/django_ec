@@ -78,12 +78,10 @@
              class="form-control"
              placeholder="プロモーションコード"
              value="{{ promotion_form.promotion_code.value|default_if_none:'' }}">
-      <button type="submit" class="btn btn-secondary">適用する</button>
+      <button type="submit" class="btn btn-secondary">適用</button>
     </div>
     {% if promotion_form.promotion_code.errors %}
-      <div class="text-danger small mt-2">
-        {{ promotion_form.promotion_code.errors }}
-      </div>
+      <div class="text-danger small mt-2">{{ promotion_form.promotion_code.errors }}</div>
     {% endif %}
   </form>
 </div>
