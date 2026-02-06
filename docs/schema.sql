@@ -74,7 +74,7 @@ CREATE TABLE orders (
   status       VARCHAR(20) NOT NULL DEFAULT 'pending',   -- 'pending' | 'paid' | 'shipped' など想定
 
   promotion_code_id BIGINT NULL REFERENCES promotion_codes(id) ON DELETE SET NULL,
-  promotion_discount_amount INTEGER NULL CHECK (promotion_discount_amount BETWEEN 100 AND 1000),
+  promotion_discount_amount INTEGER NULL CHECK (promotion_discount_amount BETWEEN 0 AND 1000),
 
   created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMP NOT NULL DEFAULT NOW()

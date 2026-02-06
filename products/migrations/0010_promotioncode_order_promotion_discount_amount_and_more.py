@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
                 help_text="未適用の場合は空欄",
                 null=True,
                 validators=[
-                    django.core.validators.MinValueValidator(100),
+                    django.core.validators.MinValueValidator(0),
                     django.core.validators.MaxValueValidator(1000),
                 ],
                 verbose_name="適用割引金額",
