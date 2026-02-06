@@ -61,11 +61,75 @@ class OrderAdmin(admin.ModelAdmin):
         "phone",
         "postal_code",
         "total_amount",
+        "promotion_code",
+        "promotion_discount_amount",
         "status",
         "created_at",
         "updated_at",
     )
     search_fields = ("name", "email", "phone", "postal_code", "address")
+    readonly_fields = (
+        "total_amount",
+        "promotion_discount_amount",
+        "card_number",
+        "card_expire",
+        "card_cvv",
+        "card_holder",
+        "created_at",
+        "updated_at",
+    )
+    fieldsets = (
+        (
+            "注文情報",
+            {
+                "fields": (
+                    "status",
+                    "created_at",
+                    "updated_at",
+                )
+            },
+        ),
+        (
+            "購入者情報",
+            {
+                "fields": (
+                    "name",
+                    "email",
+                    "phone",
+                )
+            },
+        ),
+        (
+            "配送先",
+            {
+                "fields": (
+                    "postal_code",
+                    "address",
+                )
+            },
+        ),
+        (
+            "支払い情報（学習用）",
+            {
+                "fields": (
+                    "card_number",
+                    "card_expire",
+                    "card_cvv",
+                    "card_holder",
+                )
+            },
+        ),
+        (
+            "金額・割引",
+            {
+                "fields": (
+                    "total_amount",
+                    "promotion_code",
+                    "promotion_discount_amount",
+                )
+            },
+        ),
+    )
     inlines = [OrderItemInline]
 
 
