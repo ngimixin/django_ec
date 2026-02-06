@@ -12,6 +12,11 @@
 - {{ item.product_name }} / 単価: {{ item.price|intcomma }}円 / 数量: {{ item.quantity }} / 小計: {{ item.total_price|intcomma }}円
 {% endfor %}
 
+{% if order.promotion_code and order.promotion_discount_amount %}
+【プロモーションコード】{{ order.promotion_code.code }}
+【値引き】-{{ order.promotion_discount_amount|intcomma }}円
+{% endif %}
+
 【合計】{{ order.total_amount|intcomma }}円
 
 配送先：

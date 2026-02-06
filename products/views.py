@@ -99,6 +99,22 @@ def _build_cart_summary_context(
     }
 
 
+def _get_cart_items_from_session(session_key: str | None) -> list[CartItem]:
+    """セッションキーからカート明細を取得する。"""
+    if not session_key:
+        return []
+
+    cart = Cart.objects.filter(session_key=session_key).first()
+    if cart is None:
+        return []
+
+    return list(
+        CartItem.objects.select_related("product")
+        .filter(cart=cart)
+        .order_by("created_at")
+    )
+
+
 def product_list(request: HttpRequest) -> HttpResponse:
     """公開中の商品一覧ページを表示するビュー。"""
     products = Product.objects.filter(is_active=True).order_by("-created_at")
@@ -231,9 +247,7 @@ def manage_product_delete(request: HttpRequest, pk: int) -> HttpResponse:
 
 @auth
 def manage_order_list(request: HttpRequest) -> HttpResponse:
-    """
-    購入明細一覧を表示するビュー（管理者向け）。
-    """
+    """購入明細一覧を表示するビュー（管理者向け）。"""
     orders = Order.objects.order_by("-created_at")
     context = {
         "orders": orders,
@@ -243,9 +257,7 @@ def manage_order_list(request: HttpRequest) -> HttpResponse:
 
 @auth
 def manage_order_detail(request: HttpRequest, pk: int) -> HttpResponse:
-    """
-    購入明細詳細を表示するビュー（管理者向け）。
-    """
+    """購入明細詳細を表示するビュー（管理者向け）。"""
     order = get_object_or_404(
         Order.objects.prefetch_related("items"),
         pk=pk,
@@ -258,22 +270,9 @@ def manage_order_detail(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 def cart_detail(request: HttpRequest) -> HttpResponse:
-    """
-    カートの中身を表示するビュー。
-    """
-    if request.session.session_key is None:
-        items = []
-    else:
-        session_key = request.session.session_key
-        cart = Cart.objects.filter(session_key=session_key).first()
-        if cart is None:
-            items = []
-        else:
-            items = list(
-                CartItem.objects.select_related("product")
-                .filter(cart=cart)
-                .order_by("created_at")
-            )
+    """カートの中身を表示するビュー。"""
+    session_key = request.session.session_key
+    items = _get_cart_items_from_session(session_key)
 
     context = _build_cart_summary_context(request, items)
     return render(request, "cart/cart_detail.html", context)
@@ -333,9 +332,7 @@ def add_to_cart(request: HttpRequest, product_id: int) -> HttpResponse:
 
 @require_POST
 def cart_item_update(request: HttpRequest, item_id: int) -> HttpResponse:
-    """
-    カート内商品の数量を更新するビュー。
-    """
+    """カート内商品の数量を更新するビュー。"""
     session_key = request.session.session_key
     if session_key is None:
         return JsonResponse({"ok": False}, status=400)
@@ -424,9 +421,7 @@ def cart_item_delete(request: HttpRequest, item_id: int) -> HttpResponse:
 
 @require_POST
 def cart_promotion_apply(request: HttpRequest) -> HttpResponse:
-    """
-    プロモーションコードを適用するビュー。
-    """
+    """プロモーションコードを適用するビュー。"""
     if not request.session.session_key:
         request.session.create()
 
@@ -435,15 +430,7 @@ def cart_promotion_apply(request: HttpRequest) -> HttpResponse:
         request.session["promotion_code_id"] = form.promotion.id
 
     session_key = request.session.session_key
-    cart = Cart.objects.filter(session_key=session_key).first()
-    if cart is None:
-        items = []
-    else:
-        items = list(
-            CartItem.objects.select_related("product")
-            .filter(cart=cart)
-            .order_by("created_at")
-        )
+    items = _get_cart_items_from_session(session_key)
 
     context = _build_cart_summary_context(request, items, promotion_form=form)
     html = render_to_string("cart/_cart_summary.html", context, request=request)
@@ -460,8 +447,35 @@ def cart_promotion_apply(request: HttpRequest) -> HttpResponse:
     return render(request, "cart/cart_detail.html", context)
 
 
+@require_POST
+def cart_promotion_remove(request: HttpRequest) -> HttpResponse:
+    """適用中のプロモーションコードを解除するビュー。"""
+    request.session.pop("promotion_code_id", None)
+
+    if not request.session.session_key:
+        request.session.create()
+
+    session_key = request.session.session_key
+    items = _get_cart_items_from_session(session_key)
+
+    form = PromotionCodeApplyForm()
+    context = _build_cart_summary_context(request, items, promotion_form=form)
+    html = render_to_string("cart/_cart_summary.html", context, request=request)
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse(
+            {
+                "ok": True,
+                "html": html,
+                "total_quantity": context["total_quantity"],
+            }
+        )
+
+    return render(request, "cart/cart_detail.html", context)
+
+
 def _send_mail_after_commit(order_id: int) -> None:
-    """注文確認メールを送信する。"""
+    """注文確認メールを送信するビュー。"""
     try:
         order = Order.objects.prefetch_related("items").get(pk=order_id)
 
@@ -490,9 +504,7 @@ def _send_mail_after_commit(order_id: int) -> None:
 
 @require_POST
 def order_create(request: HttpRequest) -> HttpResponse:
-    """
-    注文を作成するビュー。
-    """
+    """注文を作成するビュー。"""
     form = OrderCreateForm(request.POST)
 
     session_key = request.session.session_key
@@ -643,9 +655,7 @@ def order_create(request: HttpRequest) -> HttpResponse:
 
 
 def order_complete(request: HttpRequest) -> HttpResponse:
-    """
-    注文完了ページを表示するビュー。
-    """
+    """注文完了ページを表示するビュー。"""
     order_id = request.session.get("last_order_id")
     if not order_id:
         return redirect("products:product_list")
