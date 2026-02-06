@@ -40,6 +40,11 @@ urlpatterns = [
         views.cart_promotion_apply,
         name="cart_promotion_apply",
     ),
+    path(
+        "cart/promotion/remove/",
+        views.cart_promotion_remove,
+        name="cart_promotion_remove",
+    ),
     # --- 注文関連 ---
     path("order/create/", views.order_create, name="order_create"),
     path("order/complete/", views.order_complete, name="order_complete"),

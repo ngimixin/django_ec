@@ -156,7 +156,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!target.classList.contains("promotion-apply-form")) {
+    const isApplyForm = target.classList.contains("promotion-apply-form");
+    const isRemoveForm = target.classList.contains("promotion-remove-form");
+    if (!isApplyForm && !isRemoveForm) {
       return;
     }
 
