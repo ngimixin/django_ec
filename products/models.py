@@ -120,7 +120,7 @@ class Order(models.Model):
         null=True,
         blank=True,
         validators=[
-            MinValueValidator(100),
+            MinValueValidator(0),
             MaxValueValidator(1000),
         ],
         verbose_name="適用割引金額",
