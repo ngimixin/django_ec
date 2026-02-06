@@ -16,7 +16,6 @@
 【プロモーションコード】{{ order.promotion_code.code }}
 【値引き】-{{ order.promotion_discount_amount|intcomma }}円
 {% endif %}
-
 【合計】{{ order.total_amount|intcomma }}円
 
 配送先：
