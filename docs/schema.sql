@@ -62,7 +62,7 @@ CREATE TABLE orders (
   email        VARCHAR NOT NULL,                -- 購入者メール
   postal_code  VARCHAR(8) NOT NULL,             -- 配送先郵便番号
   address      TEXT NOT NULL,                   -- 配送先住所
-  total_amount INTEGER NOT NULL,                -- 合計金額（円）
+  total_amount INTEGER NOT NULL,                -- 支払合計（円）
 
 -- チェックアウト時のクレジットカード情報（学習用）
 -- ※ 実サービスではDBに保存しないが、本課題では理解のため保持する
