@@ -67,7 +67,7 @@ class Order(models.Model):
     # 日本国内向けフォームに寄せるが、DBは1カラムで保持する方針
     address = models.TextField(verbose_name="注文者住所")
 
-    total_amount = models.PositiveIntegerField(verbose_name="合計金額")
+    total_amount = models.PositiveIntegerField(verbose_name="支払合計")
 
     # チェックアウト時のクレジットカード情報（学習用）
     # ※ 実サービスではDBに保存しないが、本課題では理解のため保持する

@@ -43,7 +43,7 @@
   email            {label: "varchar, not null"}          # 購入者メール
   postal_code      {label: "varchar(8), not null"}          # 配送先郵便番号
   address          {label: "text, not null"}             # 配送先住所
-  total_amount     {label: "integer, not null"}          # 合計金額（円）
+  total_amount     {label: "integer, not null"}          # 支払合計（円）
 
   # チェックアウト時のクレジットカード情報（学習用）
   # ※ 実サービスではDBに保存しないが、本課題では理解のため保持する
