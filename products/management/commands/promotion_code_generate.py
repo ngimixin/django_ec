@@ -1,6 +1,9 @@
-# 目的: 事前にDBへプロモーションコードを10個生成するためのカスタムコマンド
-# 使い方: python manage.py promotion_code_generate  # 10件生成（デフォルト）
-# 使い方: python manage.py promotion_code_generate --count 20  # 20件生成
+"""事前にDBへプロモーションコードを生成する管理コマンド。
+
+使い方:
+    python manage.py promotion_code_generate          # 10件生成（デフォルト）
+    python manage.py promotion_code_generate --count 20  # 20件生成
+"""
 
 import random
 import string
