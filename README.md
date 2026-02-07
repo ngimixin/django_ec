@@ -9,6 +9,20 @@ Djangoで作成したECサイトです。
 
 ---
 
+## 技術スタック
+
+- Python 3.12
+- Django 4.2
+- PostgreSQL
+- Docker / Docker Compose
+- Bootstrap（既存テンプレートをベースにUIを構築）
+- Gunicorn + WhiteNoise（デプロイ環境で使用）
+- Cloudinary（画像ストレージ）
+- メール送信（SMTP 経由：SendGrid）
+- Heroku
+
+---
+
 ## できること（実装済み）
 
 ### お客様向け
@@ -19,17 +33,29 @@ Djangoで作成したECサイトです。
 - 購入後：購入完了画面にてフラッシュメッセージを表示
 - 注文完了メール送信（購入明細を含む）
 - セッション単位でカートを分離（ブラウザが違えば別カート）
+- **プロモーションコード適用**
+  - 7桁英数字のコードをカートで適用
+  - 割引後の支払合計を即時反映
+  - 適用中コードの解除が可能
+  - 無効・使用済みコードはエラー表示
 
 ### 管理者向け（/admin とは別に独自実装）
 - 管理者用 商品管理ページ（`/manage/products`）
   - 商品一覧 / 作成 / 編集 / 削除（一覧から削除可能）
 - 管理者用 注文一覧（`/manage/orders/`）
   - 注文詳細
+  - プロモーションコード / 値引き額の確認
   - 購入者は閲覧不可
 - 管理者向けページは Basic認証で保護
 
+### Django admin
+- 商品・注文・プロモーションコードの管理
+- 注文詳細で金額・割引情報を確認可能
+- 学習用のカード情報は readonly で表示
+
 ### データの整合性
 - 商品情報を更新・削除しても、購入明細は「購入時点の情報」を保持
+- プロモーション割引額も注文時点のスナップショットとして保持
 
 ---
 
@@ -37,19 +63,21 @@ Djangoで作成したECサイトです。
 
 - 購入フローの一連を実装（カート → チェックアウト → 注文作成 → 注文明細作成 → メール送信）
 - セッション単位でカートを分離し、複数ユーザー同時利用でも混ざらない設計
-- 購入明細はスナップショットとして保持し、商品が削除されても注文情報が壊れないように実装
+- 注文・在庫・プロモーションコードは `select_for_update()` により行ロックし、同時実行時の不整合を防止
+- プロモーションコードは管理コマンドで事前生成し、DBで管理。注文確定時に使用済みへ更新
+- 割引額は注文金額を上限として適用し、マイナスにならないよう制御
+- 割引額が 0 になる境界ケースも考慮し、DB制約・モデル・ドキュメントの整合を担保
 - Django標準 admin に頼らず管理画面を独自実装し、Basic認証で保護
-- カートの数量変更は非同期で処理し、チェックアウト画面の入力内容が保持されるように実装
+- カートの数量変更・削除・プロモーションコード適用は fetch（Ajax）で部分更新し、画面遷移なしで反映
 - 商品一覧・カートの数量選択はプルダウン式にし、DBの在庫数を上限として反映
+- 表示上の「合計金額」を「支払合計」に統一し、利用者・管理者双方で混乱しないUIに調整
 - 郵便番号から住所を自動入力し、購入時の入力負担を軽減
-- 注文確定時は行ロックで在庫をチェックし、不整合があれば注文を確定せずカートへ戻す
 
 ---
 
 ## 現在対応中
 
-- プロモーションコード機能（適用・割引・1回のみ利用）
-  - 実装中のため、完了後に機能一覧へ追記予定
+- チェックアウト画面でのフロント側でのバリデーションの追加
 
 ---
 
@@ -72,23 +100,49 @@ ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 ### dockerを立ち上げる
 
 ```
-docker-compose up
+docker compose up
 ```
 
-※ 以降の `docker-compose exec` は、上記でコンテナ起動中であることが前提です。
+※ 以降の `docker compose exec` は、上記でコンテナ起動中であることが前提です。
 
 ### 初期データ（シード）を投入
 
 ※ ローカル環境で商品を表示する場合は、初期データ（シード）を登録してください。
 
 ```
-docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py loaddata products/fixtures/products.json
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py loaddata products/fixtures/products.json
 ```
 
-### 画面イメージ
+### 起動確認
 ブラウザで以下にアクセスし、商品一覧画面が表示されれば起動完了です。
 
 [localhost:3000/](http://localhost:3000/)
+
+---
+
+## 画面イメージ
+
+#### 商品一覧
 ![商品一覧画面](docs/screenshots/top.png)
+
+#### 商品詳細
+![商品詳細画面](docs/screenshots/product_detail.png)
+
+#### カート・チェックアウト
 ![チェックアウト画面](docs/screenshots/checkout.png)
+
+#### 購入完了
+![購入完了画面](docs/screenshots/order_complete.png)
+
+#### 管理者向け 商品一覧
+![管理者 商品一覧](docs/screenshots/manage_products.png)
+
+#### 管理者向け 注文一覧
+![注文一覧画面](docs/screenshots/manage_orders.png)
+
+#### 管理者向け 注文詳細
+![注文詳細画面](docs/screenshots/manage_order_detail.png)
+
+#### 購入確認メール（本文）
+![購入確認メール](docs/screenshots/order_mail.png)
