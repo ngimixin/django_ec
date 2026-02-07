@@ -176,6 +176,14 @@ h5 a:hover {
   transition: none !important;
 }
 
+/* プロモーションコード適用ボタンの hover を見やすく */
+.promotion-apply-button:hover,
+.promotion-apply-button:focus {
+  background-color: #343a40 !important;
+  border-color: #343a40 !important;
+  color: #ffffff !important;
+}
+
 /* 商品管理画面のボタンの hover 反転を即反映 */
 .manage-product-list .btn-primary,
 .manage-product-list .btn-outline-secondary,

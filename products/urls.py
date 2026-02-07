@@ -35,6 +35,16 @@ urlpatterns = [
     path("cart/add/<int:product_id>/", views.add_to_cart, name="add_to_cart"),
     path("cart/update/<int:item_id>/", views.cart_item_update, name="cart_item_update"),
     path("cart/delete/<int:item_id>/", views.cart_item_delete, name="cart_item_delete"),
+    path(
+        "cart/promotion/apply/",
+        views.cart_promotion_apply,
+        name="cart_promotion_apply",
+    ),
+    path(
+        "cart/promotion/remove/",
+        views.cart_promotion_remove,
+        name="cart_promotion_remove",
+    ),
     # --- 注文関連 ---
     path("order/create/", views.order_create, name="order_create"),
     path("order/complete/", views.order_complete, name="order_complete"),
