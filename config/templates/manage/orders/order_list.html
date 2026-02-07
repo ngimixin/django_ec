@@ -15,7 +15,8 @@
               <th>注文日時</th>
               <th>購入者</th>
               <th>メール</th>
-              <th>合計金額</th>
+              <th>支払合計</th>
+              <th>値引き</th>
               <th>ステータス</th>
               <th></th>
             </tr>
@@ -28,6 +29,13 @@
                 <td>{{ order.name }}</td>
                 <td>{{ order.email }}</td>
                 <td>¥{{ order.total_amount|intcomma }}</td>
+                <td>
+                  {% if order.promotion_code and order.promotion_discount_amount %}
+                    <span class="text-danger">-¥{{ order.promotion_discount_amount|intcomma }}</span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
                 <td>{{ order.get_status_display }}</td>
                 <td>
                   <a href="{% url 'products:manage_order_detail' order.pk %}"

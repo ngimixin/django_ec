@@ -136,7 +136,77 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ③ 郵便番号入力フォームに自動補完機能を追加
+// ③ プロモーションコード適用を fetch 化
+document.addEventListener("DOMContentLoaded", () => {
+  const summary = document.getElementById("cart-summary");
+  if (!summary) {
+    return;
+  }
+
+  const csrfToken = document.querySelector(
+    'input[name="csrfmiddlewaretoken"]',
+  )?.value;
+  if (!csrfToken) {
+    return;
+  }
+
+  summary.addEventListener("submit", async (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLFormElement)) {
+      return;
+    }
+
+    const isApplyForm = target.classList.contains("promotion-apply-form");
+    const isRemoveForm = target.classList.contains("promotion-remove-form");
+    if (!isApplyForm && !isRemoveForm) {
+      return;
+    }
+
+    const url = target.getAttribute("action");
+    if (!url) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const formData = new FormData(target);
+    if (!formData.get("csrfmiddlewaretoken")) {
+      formData.append("csrfmiddlewaretoken", csrfToken);
+    }
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      if (!res.ok) {
+        window.location.reload();
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.html) {
+        window.location.reload();
+        return;
+      }
+
+      summary.innerHTML = data.html;
+
+      const cartBadge = document.getElementById("cart-badge");
+      if (cartBadge && typeof data.total_quantity !== "undefined") {
+        cartBadge.textContent = data.total_quantity;
+      }
+    } catch (e) {
+      window.location.reload();
+    }
+  });
+});
+
+// ④ 郵便番号入力フォームに自動補完機能を追加
 document.addEventListener("DOMContentLoaded", () => {
   const zipInput = document.getElementById("id_postal_code");
   if (!zipInput) {
