@@ -80,6 +80,10 @@ class Command(BaseCommand):
             self.stdout.write(f"{p.code},{p.discount_amount}")
 
         self.stdout.write("")
-        self.stdout.write("プロモーションコード生成結果（PR貼り付け用）：")
+        self.stdout.write(
+            self.style.SUCCESS(f"プロモーションコード生成結果（PR記載用、{count}件）：")
+        )
+        self.stdout.write("| code | discount_amount |")
+        self.stdout.write("| --- | ---: |")
         for p in created:
-            self.stdout.write(f"- `{p.code}` : {p.discount_amount}円OFF")
+            self.stdout.write(f"| {p.code} | {p.discount_amount} |")
