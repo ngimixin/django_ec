@@ -31,6 +31,7 @@
                 </label>
                 <input type="text"
                        name="name"
+                       maxlength="100"
                        class="form-control {% if form and form.name.errors %}is-invalid{% endif %}"
                        id="id_name"
                        placeholder="例：山田 太郎"
@@ -202,6 +203,7 @@
                 </label>
                 <input type="text"
                        name="city"
+                       maxlength="50"
                        class="form-control {% if form and form.city.errors %}is-invalid{% endif %}"
                        id="id_city"
                        placeholder="例：〇〇市〇〇町"
@@ -216,6 +218,7 @@
                 </label>
                 <input type="text"
                        name="street"
+                       maxlength="50"
                        class="form-control {% if form and form.street.errors %}is-invalid{% endif %}"
                        id="id_street"
                        placeholder="例：1-2-3"
@@ -230,6 +233,7 @@
                 </label>
                 <input type="text"
                        name="building"
+                       maxlength="100"
                        class="form-control"
                        id="id_building"
                        placeholder="例：〇〇マンション101"
@@ -299,6 +303,7 @@
                 </label>
                 <input type="text"
                        name="card_holder"
+                       maxlength="100"
                        class="form-control {% if form and form.card_holder.errors %}is-invalid{% endif %}"
                        id="cc-name"
                        placeholder="例：TARO YAMADA"
