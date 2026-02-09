@@ -3,6 +3,7 @@
 """
 
 import base64
+import os
 from functools import wraps
 from django.http import HttpRequest, HttpResponse
 
@@ -11,15 +12,22 @@ def basic_auth_required(view_func):
     """
     Basic認証を要求するデコレータ。
 
-    認証情報は以下に固定する。（学習用）
-    - user: admin
-    - password: pw
+    認証情報は環境変数から取得する。
+    - BASIC_AUTH_USER
+    - BASIC_AUTH_PASSWORD
     """
 
     @wraps(view_func)
     def _wrapped_view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        basic_user = "admin"
-        basic_password = "pw"
+        basic_user = os.getenv("BASIC_AUTH_USER")
+        basic_password = os.getenv("BASIC_AUTH_PASSWORD")
+
+        if not basic_user or not basic_password:
+            return HttpResponse(
+                "Basic認証が未設定です",
+                status=500,
+                content_type="text/plain; charset=utf-8",
+            )
 
         # Authorizationヘッダーを取得
         auth_header = request.META.get("HTTP_AUTHORIZATION", "")
