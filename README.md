@@ -49,7 +49,7 @@ Djangoで作成したECサイトです。
   - 注文詳細
   - プロモーションコード / 値引き額の確認
   - 購入者は閲覧不可
-- 管理者向けページは Basic認証で保護
+- 管理者向けページは Basic認証で保護（環境変数で認証情報を設定）
 
 ### Django admin
 - 商品・注文・プロモーションコードの管理
@@ -92,7 +92,17 @@ DATABASE_URL="postgres://postgres:postgres@db:5432/django_develop"
 SECRET_KEY=<自身で生成したものを使う>
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+BASIC_AUTH_USER=<任意のユーザー名>
+BASIC_AUTH_PASSWORD=<任意のパスワード>
 ```
+
+### 管理画面のID/PW（Basic認証）
+- 管理画面（`/manage/products` / `/manage/orders`）は Basic認証
+- ID/PW は環境変数で設定
+  - ID: `BASIC_AUTH_USER`
+  - PW: `BASIC_AUTH_PASSWORD`
+- Heroku でも同じ変数名を Config Vars に設定
+- レビュー用途の都合で固定認証としていたが、公開に合わせて環境変数化
 
 ### dockerを立ち上げる
 
