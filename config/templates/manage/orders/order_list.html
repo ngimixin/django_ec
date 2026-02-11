@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends "manage/base_manage.html" %}
 {% load humanize tz %}
 {% block title %}
   {{ SITE_TITLE }} | 購入明細：一覧
 {% endblock title %}
-{% block content %}
+{% block manage_content %}
   <div class="container px-4 px-lg-5 py-4 manage-order-list">
     <h1 class="mb-4">購入明細：一覧</h1>
     {% if orders %}
@@ -50,4 +50,4 @@
       <p>購入明細はまだありません。</p>
     {% endif %}
   </div>
-{% endblock content %}
+{% endblock manage_content %}

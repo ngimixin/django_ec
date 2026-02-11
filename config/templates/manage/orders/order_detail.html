@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends "manage/base_manage.html" %}
 {% load humanize tz cart_extras %}
 {% block title %}
   {{ SITE_TITLE }} | 購入明細：詳細
 {% endblock title %}
-{% block content %}
+{% block manage_content %}
   <div class="container px-4 px-lg-5 py-4 manage-order-detail">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="mb-0">購入明細：詳細</h1>
@@ -93,4 +93,4 @@
       <div class="card-footer bg-white text-end fw-semibold">合計：¥{{ order.total_amount|intcomma }}</div>
     </div>
   </div>
-{% endblock content %}
+{% endblock manage_content %}
