@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends "manage/base_manage.html" %}
 {% load static %}
 {% block title %}
   {{ SITE_TITLE }} | 商品管理：削除確認（{{ product.name }}）
 {% endblock title %}
-{% block content %}
+{% block manage_content %}
   <div class="container px-4 px-lg-5 py-4">
     <h1 class="mb-4">商品管理：削除確認（{{ product.name }}）</h1>
     <div class="alert alert-warning" role="alert">
@@ -39,4 +39,4 @@
          class="btn btn-secondary ms-2">キャンセル（一覧に戻る）</a>
     </form>
   </div>
-{% endblock content %}
+{% endblock manage_content %}

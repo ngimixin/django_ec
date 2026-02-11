@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends "manage/base_manage.html" %}
 {% load static tz %}
 {% block title %}
   {{ SITE_TITLE }} | 商品管理：一覧
 {% endblock title %}
-{% block content %}
+{% block manage_content %}
   <div class="container px-4 px-lg-5 py-4 manage-product-list">
     <h1 class="mb-4">商品管理：一覧</h1>
     <!-- 新規作成ボタン -->
@@ -61,4 +61,4 @@
       <p>商品がまだ登録されていません。</p>
     {% endif %}
   </div>
-{% endblock content %}
+{% endblock manage_content %}
