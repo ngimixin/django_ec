@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container-fluid border-bottom bg-light">
+    <div class="container px-4 px-lg-5 py-2">
+      <nav class="nav nav-pills gap-2">
+      <a class="nav-link {% if 'manage_product' in request.resolver_match.url_name %}active{% endif %}"
+         href="{% url 'products:manage_product_list' %}">商品一覧</a>
+      <a class="nav-link {% if 'manage_order' in request.resolver_match.url_name %}active{% endif %}"
+         href="{% url 'products:manage_order_list' %}">購入明細</a>
+      </nav>
+    </div>
+  </div>
+  {% block manage_content %}
+  {% endblock manage_content %}
+{% endblock content %}

@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends "manage/base_manage.html" %}
 {% load static %}
 {% block title %}
   {{ SITE_TITLE }} | 商品管理：新規作成
 {% endblock title %}
-{% block content %}
+{% block manage_content %}
   <div class="container px-4 px-lg-5 py-4">
     <h1 class="mb-4">商品管理：新規作成</h1>
     <!-- エラーがあれば上部にまとめて表示 -->
@@ -54,4 +54,4 @@
       </div>
     </form>
   </div>
-{% endblock content %}
+{% endblock manage_content %}
