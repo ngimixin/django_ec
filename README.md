@@ -3,7 +3,9 @@
 Djangoで設計から実装まで行ったECサイトのポートフォリオです。
 商品一覧 → カート → チェックアウト → 注文確定までの購入フローを一通り実装しています。
 
-- デモURL：[https://django-ec-staging-005009c332da.herokuapp.com/](https://django-ec-staging-005009c332da.herokuapp.com/)
+※以前はHeroku上でデモ環境を公開していましたが、現在は公開を停止しています。  
+ローカル環境での起動方法は下記をご参照ください。
+
 - ローカル起動：Docker対応（下に手順あり）
 - 作者：nagai（GitHub: ngimixin）
 
@@ -19,7 +21,7 @@ Djangoで設計から実装まで行ったECサイトのポートフォリオで
 - Gunicorn + WhiteNoise（デプロイ環境で使用）
 - Cloudinary（画像ストレージ）
 - メール送信（SMTP 経由：SendGrid）
-- Heroku
+- Heroku（※過去のデプロイ環境）
 
 ---
 
